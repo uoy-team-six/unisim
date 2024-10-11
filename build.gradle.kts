@@ -18,6 +18,10 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
+tasks.compileJava {
+    options.release = 17;
+}
+
 tasks.jar {
     manifest {
         attributes(
