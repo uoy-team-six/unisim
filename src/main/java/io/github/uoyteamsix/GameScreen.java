@@ -72,6 +72,7 @@ public class GameScreen extends ScreenAdapter {
 
         // Update zoom factor and call update so that the next call to unproject has updated values.
         camera.zoom += lastScrollAmount * 0.05f;
+        camera.zoom = Math.clamp(camera.zoom, 0.2f, 1.0f);
         lastScrollAmount = 0.0f;
         camera.update();
 
