@@ -122,7 +122,31 @@ public class CameraController extends InputAdapter {
         camera.update();
     }
 
+    /**
+     * @return the orthographic camera controlled by this class
+     */
     public OrthographicCamera getCamera() {
         return camera;
+    }
+
+    /**
+     * @return whether the user is currently panning the camera with the mouse
+     */
+    public boolean isPanning() {
+        return isCurrentlyDragging;
+    }
+
+    /**
+     * @return whether the camera is currently zooming in
+     */
+    public boolean isZoomingIn() {
+        return (desiredZoomLevel - camera.zoom) < -0.01f;
+    }
+
+    /**
+     * @return whether the camera is currently zooming out
+     */
+    public boolean isZoomingOut() {
+        return (desiredZoomLevel - camera.zoom) > 0.01f;
     }
 }
