@@ -7,7 +7,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 /**
@@ -39,8 +39,8 @@ public class GameScreen extends ScreenAdapter {
     public void render(float deltaTime) {
         // Create map renderer if first run.
         if (mapRenderer == null) {
-            var map = assetManager.get("maps/hexagonal-mini.tmx", TiledMap.class);
-            mapRenderer = new HexagonalTiledMapRenderer(map, batch);
+            var map = assetManager.get("maps/Map.tmx", TiledMap.class);
+            mapRenderer = new OrthogonalTiledMapRenderer(map, batch);
 
             // Calculate the width and height of the map in pixels and use that to center the camera on the map.
             var props = map.getProperties();

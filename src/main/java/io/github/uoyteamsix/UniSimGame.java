@@ -23,7 +23,7 @@ public class UniSimGame extends Game {
         assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
 
         // Load tiled map.
-        assetManager.load("maps/hexagonal-mini.tmx", TiledMap.class);
+        assetManager.load("maps/Map.tmx", TiledMap.class);
 
         // Create all of our screens.
         gameScreen = new GameScreen(assetManager);

@@ -33,7 +33,7 @@ public class CameraController extends InputAdapter {
     @Override
     public boolean scrolled(float amountX, float amountY) {
         desiredZoomLevel += amountY * 0.03f;
-        desiredZoomLevel = MathUtils.clamp(desiredZoomLevel, 0.2f, 1.0f);
+        desiredZoomLevel = MathUtils.clamp(desiredZoomLevel, 0.2f, 1.5f);
         return true;
     }
 
