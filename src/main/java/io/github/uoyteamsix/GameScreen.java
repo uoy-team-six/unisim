@@ -15,12 +15,14 @@ import com.badlogic.gdx.utils.ScreenUtils;
  */
 public class GameScreen extends ScreenAdapter {
     private final AssetManager assetManager;
+    private final CursorManager cursorManager;
     private final SpriteBatch batch;
     private final CameraController cameraController;
     private MapRenderer mapRenderer;
 
-    public GameScreen(AssetManager assetManager) {
+    public GameScreen(AssetManager assetManager, CursorManager cursorManager) {
         this.assetManager = assetManager;
+        this.cursorManager = cursorManager;
         batch = new SpriteBatch();
         cameraController = new CameraController();
 
@@ -47,6 +49,17 @@ public class GameScreen extends ScreenAdapter {
             int widthPx = props.get("width", Integer.class) * props.get("tilewidth", Integer.class);
             int heightPx = props.get("height", Integer.class) * props.get("tileheight", Integer.class);
             cameraController.getCamera().position.set(widthPx / 2.0f, heightPx / 2.0f, 0.0f);
+        }
+
+        // Set cursor.
+        if (cameraController.isZoomingIn()) {
+            cursorManager.setCursor(GameCursor.ZOOM_IN);
+        } else if (cameraController.isZoomingOut()) {
+            cursorManager.setCursor(GameCursor.ZOOM_OUT);
+        } else if (cameraController.isPanning()) {
+            cursorManager.setCursor(GameCursor.HAND_OPEN);
+        } else {
+            cursorManager.setCursor(GameCursor.POINTER);
         }
 
         // Update camera.

@@ -14,6 +14,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 public class UniSimGame extends Game {
     // Use LibGDX's AssetManager class which handles asynchronous loading and unloading of assets for us.
     private AssetManager assetManager;
+    private CursorManager cursorManager;
     private GameScreen gameScreen;
 
     @Override
@@ -25,8 +26,10 @@ public class UniSimGame extends Game {
         // Load tiled map.
         assetManager.load("maps/Map.tmx", TiledMap.class);
 
+        cursorManager = new CursorManager(assetManager);
+
         // Create all of our screens.
-        gameScreen = new GameScreen(assetManager);
+        gameScreen = new GameScreen(assetManager, cursorManager);
 
         // Go straight to the main game screen.
         setScreen(gameScreen);
@@ -42,6 +45,9 @@ public class UniSimGame extends Game {
             return;
         }
 
+        // Create any cursors for pixmaps which have been loaded.
+        cursorManager.update();
+
         // Otherwise delegate to the current screen via the Game class.
         super.render();
     }
@@ -52,6 +58,7 @@ public class UniSimGame extends Game {
 
         // Dispose is not called automatically for screens, Game.dispose() only calls Screen.hide().
         gameScreen.dispose();
+        cursorManager.dispose();
         assetManager.dispose();
     }
 
