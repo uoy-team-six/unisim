@@ -18,11 +18,17 @@ public class CameraController extends InputAdapter {
     private final Vector2 lastDragPosition;
 
     // Whether to interpolate zoom or not.
-    // TODO: Make configurable through game settings.
     private final boolean smoothZoom = true;
 
     private boolean isCurrentlyDragging = false;
     private float desiredZoomLevel = 0.5f;
+
+    // Map boundaries for clamping
+    private float mapWidth;
+    private float mapHeight;
+    
+    // Maximum zoom level to keep the whole map visible
+    private float maxZoomLevel;
 
     public CameraController() {
         camera = new OrthographicCamera();
@@ -30,10 +36,22 @@ public class CameraController extends InputAdapter {
         lastDragPosition = new Vector2();
     }
 
+    /**
+     * Set the map dimensions to clamp the camera.
+     *
+     * @param mapWidth  the width of the map in world units
+     * @param mapHeight the height of the map in world units
+     */
+    public void setMapDimensions(float mapWidth, float mapHeight) {
+        this.mapWidth = mapWidth;
+        this.mapHeight = mapHeight;
+        updateMaxZoomLevel();
+    }
+
     @Override
     public boolean scrolled(float amountX, float amountY) {
         desiredZoomLevel += amountY * 0.03f;
-        desiredZoomLevel = MathUtils.clamp(desiredZoomLevel, 0.2f, 1.5f);
+        desiredZoomLevel = MathUtils.clamp(desiredZoomLevel, 0.2f, maxZoomLevel);
         return true;
     }
 
@@ -63,6 +81,9 @@ public class CameraController extends InputAdapter {
         var mouseNow = camera.unproject(new Vector3(screenX, screenY, 0));
         camera.translate(camera.unproject(new Vector3(lastDragPosition, 0)).sub(mouseNow));
         lastDragPosition.set(screenX, screenY);
+
+        // Clamp camera to the map boundaries after dragging
+        clampCameraPosition();
         return true;
     }
 
@@ -75,6 +96,7 @@ public class CameraController extends InputAdapter {
     public void resizeViewport(int width, int height) {
         camera.viewportWidth = width;
         camera.viewportHeight = height;
+        updateMaxZoomLevel();
     }
 
     /**
@@ -103,11 +125,10 @@ public class CameraController extends InputAdapter {
         }
         camera.update();
 
-        // Handle camera zooming. The code below gives the effect of zooming into a point by keeping the mouse position
-        // constant relative to world space.
+        // Handle camera zooming.
         var mouseStart = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
 
-        // Update zoom level and call update so that the next call to unproject has updated values.
+        // Update zoom level
         if (smoothZoom) {
             camera.zoom = Interpolation.linear.apply(camera.zoom, desiredZoomLevel, deltaTime * 12.0f);
         } else {
@@ -115,11 +136,49 @@ public class CameraController extends InputAdapter {
         }
         camera.update();
 
-        // The difference between in mouse position in world space before and after zooming is the amount we need to
+        // The difference in mouse position in world space before and after zooming is the amount we need to
         // translate by to keep the mouse position constant.
         var mouseEnd = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
         camera.translate(mouseStart.sub(mouseEnd));
         camera.update();
+
+        // Clamp camera to the map boundaries after zooming
+        clampCameraPosition();
+    }
+
+    /**
+     * Clamps the camera position to ensure it doesn't go out of the map boundaries.
+     */
+    private void clampCameraPosition() {
+        float halfViewportWidth = camera.viewportWidth * camera.zoom / 2;
+        float halfViewportHeight = camera.viewportHeight * camera.zoom / 2;
+
+        // Clamp camera position within map boundaries
+        camera.position.x = MathUtils.clamp(camera.position.x, halfViewportWidth, mapWidth - halfViewportWidth);
+        camera.position.y = MathUtils.clamp(camera.position.y, halfViewportHeight, mapHeight - halfViewportHeight);
+
+        camera.update();
+    }
+
+    /**
+     * Updates the maximum zoom level to ensure the whole map fits within the viewport.
+     */
+    private void updateMaxZoomLevel() {
+        // Calculate the maximum zoom level based on the aspect ratio and map size
+        float viewportAspectRatio = camera.viewportWidth / camera.viewportHeight;
+        float mapAspectRatio = mapWidth / mapHeight;
+
+        // Set maxZoomLevel based on the smallest fitting value for width or height
+        if (viewportAspectRatio > mapAspectRatio) {
+            // Taller aspect ratio: limit based on map height
+            maxZoomLevel = mapHeight / camera.viewportHeight;
+        } else {
+            // Wider aspect ratio: limit based on map width
+            maxZoomLevel = mapWidth / camera.viewportWidth;
+        }
+
+        // Re-clamp the desired zoom level to the updated maximum
+        desiredZoomLevel = MathUtils.clamp(desiredZoomLevel, 0.2f, maxZoomLevel);
     }
 
     /**
