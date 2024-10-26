@@ -5,7 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapRenderer;
@@ -14,6 +14,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
+import io.github.uoyteamsix.map.GameMap;
 
 /**
  * A class representing the main gameplay screen.
@@ -24,6 +25,7 @@ public class GameScreen extends ScreenAdapter {
     private final SpriteBatch batch;
     private final CameraController cameraController;
     private final ShapeRenderer shapeRenderer;
+    private GameMap map;
     private MapRenderer mapRenderer;
     private TiledMapTileLayer mapLayer;  // Reference to the map's tile layer
 
@@ -53,9 +55,9 @@ public class GameScreen extends ScreenAdapter {
         // Clear the screen with a solid color (black).
         ScreenUtils.clear(0.0f, 0.0f, 0.0f, 1.0f);
 
-        // Create map renderer if first run.
-        if (mapRenderer == null) {
-            initializeMapRenderer();
+        // Create map and map renderer if first run.
+        if (map == null) {
+            initializeMap();
         }
 
         // Handle tile selection based on mouse input.
@@ -76,22 +78,20 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
-     * Initializes the map renderer and sets up the camera position.
+     * Initializes the map and map renderer and sets up the camera position.
      */
-    private void initializeMapRenderer() {
+    private void initializeMap() {
         try {
-            var map = assetManager.get("maps/map.tmx", TiledMap.class);
-            mapRenderer = new OrthogonalTiledMapRenderer(map, batch);
+            var tiledMap = assetManager.get("maps/map.tmx", TiledMap.class);
+            map = new GameMap(tiledMap);
+            mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, batch);
 
             // Get the main layer of the map for tile selection
-            mapLayer = (TiledMapTileLayer) map.getLayers().get(0);
+            mapLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
 
-            // Calculate the width and height of the map in pixels and use that to center the camera on the map.
-            var props = map.getProperties();
-            int widthPx = props.get("width", Integer.class) * props.get("tilewidth", Integer.class);
-            int heightPx = props.get("height", Integer.class) * props.get("tileheight", Integer.class);
-            cameraController.getCamera().position.set(widthPx / 2.0f, heightPx / 2.0f, 0.0f);
-            cameraController.setMapDimensions(widthPx, heightPx);  // Set map dimensions here
+            // Center the camera on the map.
+            cameraController.getCamera().position.set(map.getMapWidthPx() / 2.0f, map.getMapHeightPx() / 2.0f, 0.0f);
+            cameraController.setMapDimensions(map.getMapWidthPx(), map.getMapHeightPx());
         } catch (Exception e) {
             Gdx.app.error("GameScreen", "Failed to initialize the map renderer: " + e.getMessage());
         }
@@ -101,20 +101,22 @@ public class GameScreen extends ScreenAdapter {
      * Handles tile selection based on mouse input.
      */
     private void handleTileSelection() {
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            Vector3 worldCoordinates = cameraController.getCamera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
-            int tileX = (int) (worldCoordinates.x / mapLayer.getTileWidth());
-            int tileY = (int) (worldCoordinates.y / mapLayer.getTileHeight());
+        Vector3 worldCoordinates = cameraController.getCamera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+        int tileX = (int) (worldCoordinates.x / mapLayer.getTileWidth());
+        int tileY = (int) (worldCoordinates.y / mapLayer.getTileHeight());
 
-            // Check if the clicked tile is within bounds
-            if (tileX >= 0 && tileX < mapLayer.getWidth() && tileY >= 0 && tileY < mapLayer.getHeight()) {
-                selectedTileX = tileX;
-                selectedTileY = tileY;
-            } else {
-                // If out of bounds, deselect
-                selectedTileX = -1;
-                selectedTileY = -1;
-            }
+        // Check if the clicked tile is within bounds
+        if (tileX >= 0 && tileX < mapLayer.getWidth() && tileY >= 0 && tileY < mapLayer.getHeight()) {
+            selectedTileX = tileX;
+            selectedTileY = tileY;
+        } else {
+            // If out of bounds, deselect
+            selectedTileX = -1;
+            selectedTileY = -1;
+        }
+
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && selectedTileX >= 0) {
+            map.constructBuilding(selectedTileX, selectedTileY);
         }
     }
 
@@ -137,10 +139,14 @@ public class GameScreen extends ScreenAdapter {
      * Renders a highlight around the currently selected tile.
      */
     private void renderTileHighlight() {
+        // Enable blending so we can render a tint on top of the selected tile.
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
         if (selectedTileX >= 0 && selectedTileY >= 0) {
             shapeRenderer.setProjectionMatrix(cameraController.getCamera().combined);
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(Color.RED); // Highlight color
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(1.0f, 1.0f, 1.0f, 0.5f);
 
             // Draw a rectangle around the selected tile
             float tileWidth = mapLayer.getTileWidth();
