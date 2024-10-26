@@ -45,6 +45,18 @@ public class CameraController extends InputAdapter {
         updateMaxZoomLevel();
     }
 
+    /**
+     * Updates the camera's viewport size.
+     *
+     * @param width  the new viewport width
+     * @param height the new viewport height
+     */
+    public void setViewportDimensions(int width, int height) {
+        camera.viewportWidth = width;
+        camera.viewportHeight = height;
+        updateMaxZoomLevel();
+    }
+
     @Override
     public boolean scrolled(float amountX, float amountY) {
         desiredZoomLevel += amountY * 0.03f;
@@ -78,18 +90,6 @@ public class CameraController extends InputAdapter {
         camera.translate(camera.unproject(new Vector3(lastDragPosition, 0)).sub(mouseNow));
         lastDragPosition.set(screenX, screenY);
         return true;
-    }
-
-    /**
-     * Updates the camera's viewport size.
-     *
-     * @param width  the new viewport width
-     * @param height the new viewport height
-     */
-    public void resizeViewport(int width, int height) {
-        camera.viewportWidth = width;
-        camera.viewportHeight = height;
-        updateMaxZoomLevel();
     }
 
     /**

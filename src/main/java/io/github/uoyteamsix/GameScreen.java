@@ -34,7 +34,7 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void resize(int width, int height) {
-        cameraController.resizeViewport(width, height);
+        cameraController.setViewportDimensions(width, height);
     }
 
     @Override
