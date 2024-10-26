@@ -17,10 +17,6 @@ public class CameraController extends InputAdapter {
     private final OrthographicCamera camera;
     private final Vector2 lastDragPosition;
 
-    // Whether to interpolate zoom or not.
-    // TODO: Make configurable through game settings.
-    private final boolean smoothZoom = true;
-
     private boolean isCurrentlyDragging = false;
     private float desiredZoomLevel = 0.5f;
 
@@ -108,11 +104,7 @@ public class CameraController extends InputAdapter {
         var mouseStart = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
 
         // Update zoom level and call update so that the next call to unproject has updated values.
-        if (smoothZoom) {
-            camera.zoom = Interpolation.linear.apply(camera.zoom, desiredZoomLevel, deltaTime * 12.0f);
-        } else {
-            camera.zoom = desiredZoomLevel;
-        }
+        camera.zoom = Interpolation.linear.apply(camera.zoom, desiredZoomLevel, deltaTime * 12.0f);
         camera.update();
 
         // The difference in mouse position in world space before and after zooming is the amount we need to
