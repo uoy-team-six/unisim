@@ -20,16 +20,34 @@ public class CameraController extends InputAdapter {
     private boolean isCurrentlyDragging = false;
     private float desiredZoomLevel = 0.5f;
 
+    // Map boundaries for constraining the camera.
+    private float mapWidth;
+    private float mapHeight;
+
+    // Maximum zoom level to keep the whole map visible
+    private float maxZoomLevel;
+
     public CameraController() {
         camera = new OrthographicCamera();
         camera.zoom = desiredZoomLevel;
         lastDragPosition = new Vector2();
     }
 
+    /**
+     * Set the map dimensions to constrain the camera.
+     *
+     * @param mapWidth  the width of the map in pixels
+     * @param mapHeight the height of the map in pixels
+     */
+    public void setMapDimensions(float mapWidth, float mapHeight) {
+        this.mapWidth = mapWidth;
+        this.mapHeight = mapHeight;
+        updateMaxZoomLevel();
+    }
+
     @Override
     public boolean scrolled(float amountX, float amountY) {
         desiredZoomLevel += amountY * 0.03f;
-        desiredZoomLevel = MathUtils.clamp(desiredZoomLevel, 0.2f, 1.5f);
         return true;
     }
 
@@ -71,6 +89,7 @@ public class CameraController extends InputAdapter {
     public void resizeViewport(int width, int height) {
         camera.viewportWidth = width;
         camera.viewportHeight = height;
+        updateMaxZoomLevel();
     }
 
     /**
@@ -103,6 +122,9 @@ public class CameraController extends InputAdapter {
         // constant relative to world space.
         var mouseStart = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
 
+        // Clamp desired zoom level. Do this every frame in case the maximum zoom level gets updated.
+        desiredZoomLevel = MathUtils.clamp(desiredZoomLevel, 0.2f, maxZoomLevel);
+
         // Update zoom level and call update so that the next call to unproject has updated values.
         camera.zoom = Interpolation.linear.apply(camera.zoom, desiredZoomLevel, deltaTime * 12.0f);
         camera.update();
@@ -112,6 +134,24 @@ public class CameraController extends InputAdapter {
         var mouseEnd = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
         camera.translate(mouseStart.sub(mouseEnd));
         camera.update();
+    }
+
+    /**
+     * Updates the maximum zoom level to ensure the whole map fits within the viewport.
+     */
+    private void updateMaxZoomLevel() {
+        // Calculate the maximum zoom level based on the aspect ratio and map size.
+        float viewportAspectRatio = camera.viewportWidth / camera.viewportHeight;
+        float mapAspectRatio = mapWidth / mapHeight;
+
+        // Set maxZoomLevel based on the smallest fitting value for width or height.
+        if (viewportAspectRatio < mapAspectRatio) {
+            // Taller aspect ratio: limit based on map height.
+            maxZoomLevel = mapHeight / camera.viewportHeight;
+        } else {
+            // Wider aspect ratio: limit based on map width.
+            maxZoomLevel = mapWidth / camera.viewportWidth;
+        }
     }
 
     /**

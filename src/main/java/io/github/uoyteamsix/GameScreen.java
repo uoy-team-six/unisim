@@ -71,6 +71,7 @@ public class GameScreen extends ScreenAdapter {
             int widthPx = props.get("width", Integer.class) * props.get("tilewidth", Integer.class);
             int heightPx = props.get("height", Integer.class) * props.get("tileheight", Integer.class);
             cameraController.getCamera().position.set(widthPx / 2.0f, heightPx / 2.0f, 0.0f);
+            cameraController.setMapDimensions(widthPx, heightPx);  // Set map dimensions here
         } catch (Exception e) {
             Gdx.app.error("GameScreen", "Failed to initialize the map renderer: " + e.getMessage());
         }
