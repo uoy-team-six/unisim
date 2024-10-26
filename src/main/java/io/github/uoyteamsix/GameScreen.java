@@ -39,8 +39,30 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void render(float deltaTime) {
+        // Clear the screen with a solid color (black).
+        ScreenUtils.clear(0.0f, 0.0f, 0.0f, 1.0f);
+
         // Create map renderer if first run.
         if (mapRenderer == null) {
+            initializeMapRenderer();
+        }
+
+        // Set cursor based on camera behavior.
+        updateCursorState();
+
+        // Update camera.
+        cameraController.update(deltaTime);
+
+        // Render the map.
+        mapRenderer.setView(cameraController.getCamera());
+        mapRenderer.render();
+    }
+
+    /**
+     * Initializes the map renderer and sets up the camera position.
+     */
+    private void initializeMapRenderer() {
+        try {
             var map = assetManager.get("maps/Map.tmx", TiledMap.class);
             mapRenderer = new OrthogonalTiledMapRenderer(map, batch);
 
@@ -49,9 +71,15 @@ public class GameScreen extends ScreenAdapter {
             int widthPx = props.get("width", Integer.class) * props.get("tilewidth", Integer.class);
             int heightPx = props.get("height", Integer.class) * props.get("tileheight", Integer.class);
             cameraController.getCamera().position.set(widthPx / 2.0f, heightPx / 2.0f, 0.0f);
+        } catch (Exception e) {
+            Gdx.app.error("GameScreen", "Failed to initialize the map renderer: " + e.getMessage());
         }
+    }
 
-        // Set cursor.
+    /**
+     * Updates the cursor state based on camera actions.
+     */
+    private void updateCursorState() {
         if (cameraController.isZoomingIn()) {
             cursorManager.setCursor(GameCursor.ZOOM_IN);
         } else if (cameraController.isZoomingOut()) {
@@ -61,14 +89,6 @@ public class GameScreen extends ScreenAdapter {
         } else {
             cursorManager.setCursor(GameCursor.POINTER);
         }
-
-        // Update camera.
-        cameraController.update(deltaTime);
-
-        // Clear screen with black and draw map.
-        ScreenUtils.clear(0.0f, 0.0f, 0.0f, 1.0f);
-        mapRenderer.setView(cameraController.getCamera());
-        mapRenderer.render();
     }
 
     @Override
