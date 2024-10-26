@@ -133,6 +133,13 @@ public class CameraController extends InputAdapter {
         // translate by to keep the mouse position constant.
         var mouseEnd = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
         camera.translate(mouseStart.sub(mouseEnd));
+
+        // Clamp camera position to the map boundaries.
+        var halfViewport = new Vector2(camera.viewportWidth, camera.viewportHeight).scl(camera.zoom / 2.0f);
+        camera.position.x = MathUtils.clamp(camera.position.x, halfViewport.x, mapWidth - halfViewport.x);
+        camera.position.y = MathUtils.clamp(camera.position.y, halfViewport.y, mapHeight - halfViewport.y);
+
+        // Final camera update with the new position.
         camera.update();
     }
 
