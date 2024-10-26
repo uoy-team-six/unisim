@@ -115,7 +115,7 @@ public class CameraController extends InputAdapter {
         }
         camera.update();
 
-        // The difference between in mouse position in world space before and after zooming is the amount we need to
+        // The difference in mouse position in world space before and after zooming is the amount we need to
         // translate by to keep the mouse position constant.
         var mouseEnd = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
         camera.translate(mouseStart.sub(mouseEnd));
