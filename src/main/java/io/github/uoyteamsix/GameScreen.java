@@ -80,7 +80,7 @@ public class GameScreen extends ScreenAdapter {
      */
     private void initializeMapRenderer() {
         try {
-            var map = assetManager.get("maps/Map.tmx", TiledMap.class);
+            var map = assetManager.get("maps/map.tmx", TiledMap.class);
             mapRenderer = new OrthogonalTiledMapRenderer(map, batch);
 
             // Get the main layer of the map for tile selection

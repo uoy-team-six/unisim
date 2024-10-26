@@ -24,7 +24,7 @@ public class UniSimGame extends Game {
         assetManager.setLoader(TiledMap.class, new TmxMapLoader(new InternalFileHandleResolver()));
 
         // Load tiled map.
-        assetManager.load("maps/Map.tmx", TiledMap.class);
+        assetManager.load("maps/map.tmx", TiledMap.class);
 
         cursorManager = new CursorManager(assetManager);
 
