@@ -15,6 +15,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import io.github.uoyteamsix.map.GameMap;
+import io.github.uoyteamsix.ui.UiStage;
 
 /**
  * A class representing the main gameplay screen.
@@ -25,6 +26,7 @@ public class GameScreen extends ScreenAdapter {
     private final SpriteBatch batch;
     private final CameraController cameraController;
     private final ShapeRenderer shapeRenderer;
+    private final UiStage uiStage;
     private GameMap map;
     private MapRenderer mapRenderer;
     private TiledMapTileLayer mapLayer;  // Reference to the map's tile layer
@@ -38,16 +40,21 @@ public class GameScreen extends ScreenAdapter {
         batch = new SpriteBatch();
         cameraController = new CameraController();
         shapeRenderer = new ShapeRenderer();
+        uiStage = new UiStage(assetManager);
 
-        // Create an input multiplexer to chain together our input adapters. For now, we only have the camera.
+        // Create an input multiplexer to chain together our input adapters.
+        // Add the UI stage first, then the camera controller.
         var inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(uiStage);
         inputMultiplexer.addProcessor(cameraController);
         Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     @Override
     public void resize(int width, int height) {
+        // Propagate resize to other systems.
         cameraController.setViewportDimensions(width, height);
+        uiStage.getViewport().update(width, height, true);
     }
 
     @Override
@@ -66,8 +73,9 @@ public class GameScreen extends ScreenAdapter {
         // Set cursor based on camera behavior.
         updateCursorState();
 
-        // Update camera.
+        // Update camera and UI.
         cameraController.update(deltaTime);
+        uiStage.act(deltaTime);
 
         // Render the map.
         mapRenderer.setView(cameraController.getCamera());
@@ -75,6 +83,9 @@ public class GameScreen extends ScreenAdapter {
 
         // Render the tile highlight if a tile is selected.
         renderTileHighlight();
+
+        // Render the UI last.
+        uiStage.draw();
     }
 
     /**
@@ -161,5 +172,6 @@ public class GameScreen extends ScreenAdapter {
     public void dispose() {
         batch.dispose();
         shapeRenderer.dispose();
+        uiStage.dispose();
     }
 }
