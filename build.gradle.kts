@@ -12,8 +12,10 @@ repositories {
 
 dependencies {
     api("com.badlogicgames.gdx:gdx:1.12.1")
+    api("com.badlogicgames.gdx:gdx-freetype:1.12.1")
     implementation("com.badlogicgames.gdx:gdx-backend-lwjgl3:1.12.1")
     implementation("com.badlogicgames.gdx:gdx-platform:1.12.1:natives-desktop")
+    implementation("com.badlogicgames.gdx:gdx-freetype-platform:1.12.1:natives-desktop")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
