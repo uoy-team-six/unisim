@@ -1,7 +1,6 @@
 package io.github.uoyteamsix.ui;
 
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.utils.Align;
@@ -12,7 +11,6 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
  */
 public class UiStage extends Stage {
     private final UiAssets assets;
-    private BitmapFont bitmapFont;
 
     public UiStage(AssetManager assetManager) {
         // The UI spans the whole screen.
@@ -28,6 +26,7 @@ public class UiStage extends Stage {
 
         // Create all of our UI widgets.
         widgetGroup.addActor(new GameTimer(assets));
+        widgetGroup.addActor(new BuildingStatsBox(assets));
     }
 
     @Override
