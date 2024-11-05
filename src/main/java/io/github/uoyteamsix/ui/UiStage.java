@@ -5,7 +5,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -48,9 +47,7 @@ public class UiStage extends Stage {
             bitmapFont = generator.generateFont(fontParameters);
 
             // Create and add the game timer.
-            var labelStyle = new Label.LabelStyle();
-            labelStyle.font = bitmapFont;
-            widgetGroup.addActor(new GameTimer(labelStyle));
+            widgetGroup.addActor(new GameTimer(assetManager, bitmapFont));
         }
     }
 }
