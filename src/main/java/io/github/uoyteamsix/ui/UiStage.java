@@ -2,8 +2,7 @@ package io.github.uoyteamsix.ui;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
-import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 /**
@@ -17,16 +16,22 @@ public class UiStage extends Stage {
         super(new ScreenViewport());
         assets = new UiAssets(assetManager);
 
-        // Create widget group.
-        var widgetGroup = new VerticalGroup();
-        widgetGroup.setFillParent(true);
-        widgetGroup.setPosition(25.0f, -25.0f);
-        widgetGroup.align(Align.topLeft);
-        addActor(widgetGroup);
+        // Create a table to fill the whole screen.
+        var mainTable = new Table();
+        mainTable.setFillParent(true);
+        addActor(mainTable);
 
-        // Create all of our UI widgets.
-        widgetGroup.addActor(new GameTimer(assets));
-        widgetGroup.addActor(new BuildingStatsBox(assets));
+        // Create a table anchored to the top left for the timer and stats.
+        var topLeftTable = new Table();
+        topLeftTable.add(new GameTimer(assets));
+        topLeftTable.row();
+        topLeftTable.add(new BuildingStatsBox(assets));
+
+        // Create the building toolbar anchored to the bottom center.
+        var toolbar = new BuildingToolbar(assets);
+        mainTable.add(topLeftTable).expand().top().left().padLeft(25.0f);
+        mainTable.row();
+        mainTable.add(toolbar).bottom().center().padBottom(5.0f);
     }
 
     @Override
