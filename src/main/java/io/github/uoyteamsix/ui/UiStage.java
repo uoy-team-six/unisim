@@ -26,7 +26,7 @@ public class UiStage extends Stage {
         var topLeftTable = new Table();
         topLeftTable.add(new GameTimer(assets));
         topLeftTable.row();
-        topLeftTable.add(new BuildingStatsBox(assets));
+        topLeftTable.add(new BuildingStatsBox(assets, selectedPrefab));
 
         // Create the building toolbar anchored to the bottom center.
         var toolbar = new BuildingToolbar(assets, selectedPrefab);

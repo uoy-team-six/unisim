@@ -6,17 +6,21 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
+import io.github.uoyteamsix.SelectedPrefab;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BuildingStatsBox extends Table {
     private final UiAssets uiAssets;
-    private Label accomodationLabel;
-    private Label foodLabel;
-    private Label learningLabel;
-    private Label recreationLabel;
+    private final SelectedPrefab selectedPrefab;
+    private final List<Label> labels;
     private Image boxImage;
 
-    public BuildingStatsBox(UiAssets uiAssets) {
+    public BuildingStatsBox(UiAssets uiAssets, SelectedPrefab selectedPrefab) {
         this.uiAssets = uiAssets;
+        this.selectedPrefab = selectedPrefab;
+        labels = new ArrayList<>();
     }
 
     @Override
@@ -24,12 +28,11 @@ public class BuildingStatsBox extends Table {
         super.act(delta);
 
         // Create labels once fonts have been loaded.
-        if (accomodationLabel == null && uiAssets.hasFontsLoaded()) {
+        if (labels.isEmpty() && uiAssets.hasFontsLoaded()) {
             var labelStyle = new Label.LabelStyle(uiAssets.getSmallFont(), Color.BLACK);
-            accomodationLabel = new Label("Accomodation: 0", labelStyle);
-            foodLabel = new Label("Food: 0", labelStyle);
-            learningLabel = new Label("Learning: 0", labelStyle);
-            recreationLabel = new Label("Recreation: 0", labelStyle);
+            for (int i = 0; i < selectedPrefab.getMap().getAvailablePrefabs().size(); i++) {
+                labels.add(new Label("", labelStyle));
+            }
         }
 
         // Create image once spritesheet has been loaded.
@@ -38,16 +41,27 @@ public class BuildingStatsBox extends Table {
             boxImage = new Image(textureRegion);
         }
 
-        if (getChildren().isEmpty() && accomodationLabel != null && boxImage != null) {
+        // TODO: This code assumes 4 labels (building types).
+        if (getChildren().isEmpty() && !labels.isEmpty() && boxImage != null) {
             add(boxImage).size(64.0f * 3.0f, 32.0f * 3.0f);
             row();
-            add(accomodationLabel).align(Align.left).padLeft(15.0f).padTop(-165.0f);
+            add(labels.get(0)).align(Align.left).padLeft(12.0f).padTop(-165.0f);
             row();
-            add(foodLabel).align(Align.left).padLeft(15.0f).padTop(-116.0f);
+            add(labels.get(1)).align(Align.left).padLeft(12.0f).padTop(-116.0f);
             row();
-            add(learningLabel).align(Align.left).padLeft(15.0f).padTop(-68.0f);
+            add(labels.get(2)).align(Align.left).padLeft(12.0f).padTop(-68.0f);
             row();
-            add(recreationLabel).align(Align.left).padLeft(15.0f).padTop(-23.0f);
+            add(labels.get(3)).align(Align.left).padLeft(12.0f).padTop(-23.0f);
+        }
+
+        // Update label text.
+        if (!labels.isEmpty()) {
+            var map = selectedPrefab.getMap();
+            for (int i = 0; i < map.getAvailablePrefabs().size(); i++) {
+                var prefab = map.getAvailablePrefabs().get(i);
+                var count = map.getBuildingCount(prefab);
+                labels.get(i).setText(String.format("%s: %d", prefab.getName(), count));
+            }
         }
     }
 }

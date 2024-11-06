@@ -111,6 +111,16 @@ public class GameMap {
         placedBuildings.add(new Building(prefab, x, y));
     }
 
+    public int getBuildingCount(BuildingPrefab prefab) {
+        int count = 0;
+        for (var building : placedBuildings) {
+            if (building.getPrefab() == prefab) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public TiledMap getTiledMap() {
         return tiledMap;
     }
