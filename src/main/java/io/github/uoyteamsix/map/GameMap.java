@@ -23,6 +23,7 @@ public class GameMap {
 
     private final boolean[][] usableTiles;
     private final List<BuildingPrefab> availablePrefabs;
+    private final List<Building> placedBuildings;
 
     public GameMap(TiledMap tiledMap) {
         this.tiledMap = tiledMap;
@@ -66,6 +67,8 @@ public class GameMap {
         for (var prefab : availablePrefabs) {
             prefab.generateTextures(offlineBuildingRenderer);
         }
+
+        placedBuildings = new ArrayList<>();
     }
 
     /**
@@ -105,6 +108,7 @@ public class GameMap {
                 usableTiles[mapX][mapY] = false;
             }
         }
+        placedBuildings.add(new Building(prefab, x, y));
     }
 
     public TiledMap getTiledMap() {
