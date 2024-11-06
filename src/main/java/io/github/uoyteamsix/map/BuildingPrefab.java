@@ -1,5 +1,7 @@
 package io.github.uoyteamsix.map;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 
 /**
@@ -9,6 +11,8 @@ public class BuildingPrefab {
     private final TiledMapTileLayer tiledLayer;
     private int width;
     private int height;
+    private TextureRegion transparentTexture;
+    private TextureRegion redTexture;
 
     public BuildingPrefab(TiledMapTileLayer tiledLayer) {
         this.tiledLayer = tiledLayer;
@@ -24,6 +28,16 @@ public class BuildingPrefab {
                 break;
             }
         }
+    }
+
+    /**
+     * Generate transparent and red textures for this building.
+     *
+     * @param renderer an instance of an OfflineBuildingRenderer
+     */
+    public void generateTextures(OfflineBuildingRenderer renderer) {
+        transparentTexture = renderer.render(this, new Color(1.0f, 1.0f, 1.0f, 0.8f));
+        redTexture = renderer.render(this, new Color(1.0f, 0.1f, 0.1f, 0.8f));
     }
 
     /**
@@ -45,5 +59,13 @@ public class BuildingPrefab {
      */
     public int getHeight() {
         return height;
+    }
+
+    public TextureRegion getTransparentTexture() {
+        return transparentTexture;
+    }
+
+    public TextureRegion getRedTexture() {
+        return redTexture;
     }
 }

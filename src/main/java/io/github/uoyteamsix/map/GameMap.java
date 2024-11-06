@@ -3,6 +3,9 @@ package io.github.uoyteamsix.map;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * A class to represent the playable game map. Holds the underlying tiled map and keeps track
  * of placed buildings.
@@ -19,6 +22,7 @@ public class GameMap {
     private final int tileHeightPx;
 
     private final boolean[][] usableTiles;
+    private final Map<String, BuildingPrefab> availablePrefabs;
 
     public GameMap(TiledMap tiledMap) {
         this.tiledMap = tiledMap;
@@ -45,6 +49,22 @@ public class GameMap {
                     }
                 }
             }
+        }
+
+        // Create building types for each prefab layer in the map.
+        availablePrefabs = new HashMap<>();
+        for (var layer : tiledMap.getLayers()) {
+            if (layer.getName().startsWith("Prefab: ")) {
+                // Extract prefab name, e.g. Accomodation.
+                var prefabName = layer.getName().substring("Prefab: ".length());
+                availablePrefabs.put(prefabName, new BuildingPrefab((TiledMapTileLayer) layer));
+            }
+        }
+
+        // Generate textures for each building prefab.
+        var offlineBuildingRenderer = new OfflineBuildingRenderer(this);
+        for (var prefab : availablePrefabs.values()) {
+            prefab.generateTextures(offlineBuildingRenderer);
         }
     }
 
