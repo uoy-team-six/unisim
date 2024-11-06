@@ -8,13 +8,16 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
  * A class which represents the information about a building.
  */
 public class BuildingPrefab {
+    private final String name;
     private final TiledMapTileLayer tiledLayer;
     private int width;
     private int height;
+    private TextureRegion normalTexture;
     private TextureRegion transparentTexture;
     private TextureRegion redTexture;
 
-    public BuildingPrefab(TiledMapTileLayer tiledLayer) {
+    public BuildingPrefab(String name, TiledMapTileLayer tiledLayer) {
+        this.name = name;
         this.tiledLayer = tiledLayer;
 
         // Compute width and height. Assumes building is rectangular.
@@ -36,8 +39,16 @@ public class BuildingPrefab {
      * @param renderer an instance of an OfflineBuildingRenderer
      */
     public void generateTextures(OfflineBuildingRenderer renderer) {
+        normalTexture = renderer.render(this, new Color(1.0f, 1.0f, 1.0f, 1.0f));
         transparentTexture = renderer.render(this, new Color(1.0f, 1.0f, 1.0f, 0.8f));
         redTexture = renderer.render(this, new Color(1.0f, 0.1f, 0.1f, 0.8f));
+    }
+
+    /**
+     * @return the name of the building
+     */
+    public String getName() {
+        return name;
     }
 
     /**
@@ -59,6 +70,10 @@ public class BuildingPrefab {
      */
     public int getHeight() {
         return height;
+    }
+
+    public TextureRegion getNormalTexture() {
+        return normalTexture;
     }
 
     public TextureRegion getTransparentTexture() {

@@ -3,8 +3,8 @@ package io.github.uoyteamsix.map;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A class to represent the playable game map. Holds the underlying tiled map and keeps track
@@ -22,7 +22,7 @@ public class GameMap {
     private final int tileHeightPx;
 
     private final boolean[][] usableTiles;
-    private final Map<String, BuildingPrefab> availablePrefabs;
+    private final List<BuildingPrefab> availablePrefabs;
 
     public GameMap(TiledMap tiledMap) {
         this.tiledMap = tiledMap;
@@ -52,18 +52,18 @@ public class GameMap {
         }
 
         // Create building types for each prefab layer in the map.
-        availablePrefabs = new HashMap<>();
+        availablePrefabs = new ArrayList<>();
         for (var layer : tiledMap.getLayers()) {
             if (layer.getName().startsWith("Prefab: ")) {
                 // Extract prefab name, e.g. Accomodation.
                 var prefabName = layer.getName().substring("Prefab: ".length());
-                availablePrefabs.put(prefabName, new BuildingPrefab((TiledMapTileLayer) layer));
+                availablePrefabs.add(new BuildingPrefab(prefabName, (TiledMapTileLayer) layer));
             }
         }
 
         // Generate textures for each building prefab.
         var offlineBuildingRenderer = new OfflineBuildingRenderer(this);
-        for (var prefab : availablePrefabs.values()) {
+        for (var prefab : availablePrefabs) {
             prefab.generateTextures(offlineBuildingRenderer);
         }
     }
@@ -96,14 +96,13 @@ public class GameMap {
         return true;
     }
 
-    public void constructBuilding(int x, int y) {
-        var prefabLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Prefab: House");
-        for (int cellX = 0; cellX < prefabLayer.getWidth(); cellX++) {
-            for (int cellY = 0; cellY < prefabLayer.getHeight(); cellY++) {
-                var cell = prefabLayer.getCell(cellX, cellY);
-                if (cell != null) {
-                    buildingLayer.setCell(x + cellX, y + cellY, cell);
-                }
+    public void placeBuilding(BuildingPrefab prefab, int x, int y) {
+        for (int prefabX = 0; prefabX < prefab.getWidth(); prefabX++) {
+            for (int prefabY = 0; prefabY < prefab.getHeight(); prefabY++) {
+                int mapX = x + prefabX;
+                int mapY = y + prefabY;
+                buildingLayer.setCell(mapX, mapY, prefab.getTiledLayer().getCell(prefabX, prefabY));
+                usableTiles[mapX][mapY] = false;
             }
         }
     }
@@ -152,5 +151,9 @@ public class GameMap {
      */
     public int getTileHeightPx() {
         return tileHeightPx;
+    }
+
+    public List<BuildingPrefab> getAvailablePrefabs() {
+        return availablePrefabs;
     }
 }

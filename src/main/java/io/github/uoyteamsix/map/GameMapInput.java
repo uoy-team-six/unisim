@@ -4,6 +4,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.math.Vector3;
 import io.github.uoyteamsix.CameraController;
+import io.github.uoyteamsix.SelectedPrefab;
 
 /**
  * A class which handles user input events on the game map.
@@ -11,12 +12,23 @@ import io.github.uoyteamsix.CameraController;
 public class GameMapInput extends InputAdapter {
     private final GameMap map;
     private final CameraController cameraController;
+    private final SelectedPrefab selectedPrefab;
     private int selectedTileX = -1;
     private int selectedTileY = -1;
 
-    public GameMapInput(GameMap map, CameraController cameraController) {
+    public GameMapInput(GameMap map, CameraController cameraController, SelectedPrefab selectedPrefab) {
         this.map = map;
         this.cameraController = cameraController;
+        this.selectedPrefab = selectedPrefab;
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        if (keycode >= Input.Keys.NUM_1 && keycode <= Input.Keys.NUM_9) {
+            selectedPrefab.setIndex(keycode - Input.Keys.NUM_1);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -37,8 +49,13 @@ public class GameMapInput extends InputAdapter {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (button == Input.Buttons.LEFT && selectedTileX >= 0 && selectedTileY >= 0) {
-            map.constructBuilding(selectedTileX, selectedTileY);
+        var prefab = selectedPrefab.getPrefab();
+        if (button == Input.Buttons.LEFT && selectedTileX >= 0 && selectedTileY >= 0 && prefab != null) {
+            int placementX = getPlacementTileX();
+            int placementY = getPlacementTileY();
+            if (map.canPlaceBuilding(prefab, placementX, placementY)) {
+                map.placeBuilding(prefab, placementX, placementY);
+            }
         }
         return true;
     }
@@ -49,5 +66,21 @@ public class GameMapInput extends InputAdapter {
 
     public int getSelectedTileY() {
         return selectedTileY;
+    }
+
+    public int getPlacementTileX() {
+        var prefab = selectedPrefab.getPrefab();
+        if (prefab == null) {
+            return selectedTileX;
+        }
+        return selectedTileX - prefab.getWidth() / 2;
+    }
+
+    public int getPlacementTileY() {
+        var prefab = selectedPrefab.getPrefab();
+        if (prefab == null) {
+            return selectedTileY;
+        }
+        return selectedTileY - prefab.getHeight() / 2;
     }
 }

@@ -4,9 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -23,7 +21,7 @@ public class GameScreen extends ScreenAdapter {
     private final CursorManager cursorManager;
     private final SpriteBatch batch;
     private final CameraController cameraController;
-    private final ShapeRenderer shapeRenderer;
+    private final SelectedPrefab selectedPrefab;
     private final UiStage uiStage;
     private GameMap map;
     private GameMapInput mapInput;
@@ -34,8 +32,8 @@ public class GameScreen extends ScreenAdapter {
         this.cursorManager = cursorManager;
         batch = new SpriteBatch();
         cameraController = new CameraController();
-        shapeRenderer = new ShapeRenderer();
-        uiStage = new UiStage(assetManager);
+        selectedPrefab = new SelectedPrefab();
+        uiStage = new UiStage(assetManager, selectedPrefab);
 
         // Create an input multiplexer to chain together our input adapters.
         // Add the UI stage first, then the camera controller.
@@ -73,8 +71,8 @@ public class GameScreen extends ScreenAdapter {
         mapRenderer.setView(cameraController.getCamera());
         mapRenderer.render();
 
-        // Render the tile highlight if a tile is selected.
-        renderTileHighlight();
+        // Render the building currently being placed.
+        renderBuildingPlacement();
 
         // Render the UI last.
         uiStage.draw();
@@ -88,13 +86,14 @@ public class GameScreen extends ScreenAdapter {
             var tiledMap = assetManager.get("maps/map.tmx", TiledMap.class);
             map = new GameMap(tiledMap);
             mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, batch);
+            selectedPrefab.setMap(map);
 
             // Center the camera on the map.
             cameraController.getCamera().position.set(map.getWidthPx() / 2.0f, map.getHeightPx() / 2.0f, 0.0f);
             cameraController.setMapDimensions(map.getWidthPx(), map.getHeightPx());
 
             // Add input handler for map.
-            mapInput = new GameMapInput(map, cameraController);
+            mapInput = new GameMapInput(map, cameraController, selectedPrefab);
             ((InputMultiplexer) Gdx.input.getInputProcessor()).addProcessor(mapInput);
         } catch (Exception e) {
             Gdx.app.error("GameScreen", "Failed to initialize the map renderer: " + e.getMessage());
@@ -117,33 +116,31 @@ public class GameScreen extends ScreenAdapter {
     }
 
     /**
-     * Renders a highlight around the currently selected tile.
+     * Renders a building on the mouse cursor if a building is currently being placed.
      */
-    private void renderTileHighlight() {
-        // Enable blending so we can render a tint on top of the selected tile.
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
-        var selectedTileX = mapInput.getSelectedTileX();
-        var selectedTileY = mapInput.getSelectedTileY();
-        if (selectedTileX >= 0 && selectedTileY >= 0) {
-            shapeRenderer.setProjectionMatrix(cameraController.getCamera().combined);
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(1.0f, 1.0f, 1.0f, 0.5f);
-
-            // Draw a rectangle around the selected tile
-            float tileWidth = map.getTileWidthPx();
-            float tileHeight = map.getTileHeightPx();
-            shapeRenderer.rect(selectedTileX * tileWidth, selectedTileY * tileHeight, tileWidth, tileHeight);
-
-            shapeRenderer.end();
+    private void renderBuildingPlacement() {
+        var prefab = selectedPrefab.getPrefab();
+        if (prefab == null) {
+            // Building not being placed.
+            return;
         }
+
+        int placementX = mapInput.getPlacementTileX();
+        int placementY = mapInput.getPlacementTileY();
+
+        // Select texture based on whether this placement is valid.
+        boolean canPlace = map.canPlaceBuilding(prefab, placementX, placementY);
+        var texture = canPlace ? prefab.getTransparentTexture() : prefab.getRedTexture();
+
+        // Render texture.
+        batch.begin();
+        batch.draw(texture, placementX * map.getTileWidthPx(), placementY * map.getTileHeightPx());
+        batch.end();
     }
 
     @Override
     public void dispose() {
         batch.dispose();
-        shapeRenderer.dispose();
         uiStage.dispose();
     }
 }
