@@ -18,6 +18,8 @@ public class GameMap {
     private final int tileWidthPx;
     private final int tileHeightPx;
 
+    private final boolean[][] usableTiles;
+
     public GameMap(TiledMap tiledMap) {
         this.tiledMap = tiledMap;
         buildingLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Buildings");
@@ -28,6 +30,50 @@ public class GameMap {
         tileHeightPx = buildingLayer.getTileHeight();
         widthPx = width * tileWidthPx;
         heightPx = height * tileHeightPx;
+
+        // Compute which tiles are allowed to be placed on.
+        usableTiles = new boolean[width][height];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                usableTiles[x][y] = true;
+                for (var layer : tiledMap.getLayers()) {
+                    if (layer.getName().equals("Terrain")) {
+                        continue;
+                    }
+                    if (((TiledMapTileLayer) layer).getCell(x, y) != null) {
+                        usableTiles[x][y] = false;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks whether a building prefab can be placed at the given coordinates.
+     *
+     * @param prefab the building prefab
+     * @param x      the x coordinate in world space
+     * @param y      the y coordinate in world space
+     * @return true if the building can be placed, false otherwise
+     */
+    public boolean canPlaceBuilding(BuildingPrefab prefab, int x, int y) {
+        for (int prefabX = 0; prefabX < prefab.getWidth(); prefabX++) {
+            for (int prefabY = 0; prefabY < prefab.getHeight(); prefabY++) {
+                int mapX = x + prefabX;
+                int mapY = y + prefabY;
+
+                // Check out of bounds.
+                if (mapX < 0 || mapY < 0 || mapX >= width || mapY >= height) {
+                    return false;
+                }
+
+                // Check if on top of a disallowed tile.
+                if (!usableTiles[mapX][mapY]) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public void constructBuilding(int x, int y) {
