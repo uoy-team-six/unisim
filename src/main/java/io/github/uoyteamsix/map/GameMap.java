@@ -11,21 +11,23 @@ public class GameMap {
     private final TiledMap tiledMap;
     private final TiledMapTileLayer buildingLayer;
 
+    private final int width;
+    private final int height;
+    private final int widthPx;
+    private final int heightPx;
     private final int tileWidthPx;
     private final int tileHeightPx;
-    private final int mapWidthPx;
-    private final int mapHeightPx;
 
     public GameMap(TiledMap tiledMap) {
         this.tiledMap = tiledMap;
         buildingLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Buildings");
 
-        // Calculate map width and height in pixels.
-        var props = tiledMap.getProperties();
-        tileWidthPx = props.get("tilewidth", Integer.class);
-        tileHeightPx = props.get("tileheight", Integer.class);
-        mapWidthPx = tileWidthPx * props.get("width", Integer.class);
-        mapHeightPx = tileHeightPx * props.get("height", Integer.class);
+        width = buildingLayer.getWidth();
+        height = buildingLayer.getHeight();
+        tileWidthPx = buildingLayer.getTileWidth();
+        tileHeightPx = buildingLayer.getTileHeight();
+        widthPx = width * tileWidthPx;
+        heightPx = height * tileHeightPx;
     }
 
     public void constructBuilding(int x, int y) {
@@ -44,19 +46,45 @@ public class GameMap {
         return tiledMap;
     }
 
+    /**
+     * @return the width of the map in tiles
+     */
+    public int getWidth() {
+        return width;
+    }
+
+    /**
+     * @return the height of the map in tiles
+     */
+    public int getHeight() {
+        return height;
+    }
+
+    /**
+     * @return the width of the map in pixels
+     */
+    public int getWidthPx() {
+        return widthPx;
+    }
+
+    /**
+     * @return the height of the map in pixels
+     */
+    public int getHeightPx() {
+        return heightPx;
+    }
+
+    /**
+     * @return the width of a single map tile in pixels
+     */
     public int getTileWidthPx() {
         return tileWidthPx;
     }
 
+    /**
+     * @return the height of a single map tile in pixels
+     */
     public int getTileHeightPx() {
         return tileHeightPx;
-    }
-
-    public int getMapWidthPx() {
-        return mapWidthPx;
-    }
-
-    public int getMapHeightPx() {
-        return mapHeightPx;
     }
 }

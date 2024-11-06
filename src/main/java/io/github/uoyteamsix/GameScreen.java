@@ -101,8 +101,8 @@ public class GameScreen extends ScreenAdapter {
             mapLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
 
             // Center the camera on the map.
-            cameraController.getCamera().position.set(map.getMapWidthPx() / 2.0f, map.getMapHeightPx() / 2.0f, 0.0f);
-            cameraController.setMapDimensions(map.getMapWidthPx(), map.getMapHeightPx());
+            cameraController.getCamera().position.set(map.getWidthPx() / 2.0f, map.getHeightPx() / 2.0f, 0.0f);
+            cameraController.setMapDimensions(map.getWidthPx(), map.getHeightPx());
         } catch (Exception e) {
             Gdx.app.error("GameScreen", "Failed to initialize the map renderer: " + e.getMessage());
         }
