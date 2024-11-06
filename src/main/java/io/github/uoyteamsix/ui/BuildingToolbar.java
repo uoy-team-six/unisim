@@ -1,13 +1,14 @@
 package io.github.uoyteamsix.ui;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import io.github.uoyteamsix.SelectedPrefab;
 
 import java.util.ArrayList;
@@ -29,10 +30,19 @@ public class BuildingToolbar extends Table {
     public void act(float delta) {
         super.act(delta);
 
-        if (backgroundImages.isEmpty() && uiAssets.hasSpritesheetLoaded()) {
+        if (backgroundImages.isEmpty() && uiAssets.hasSpritesheetLoaded() && uiAssets.hasFontsLoaded()) {
+            // Create a drawable for the tooltip box and give it some padding as otherwise the text intersects the edge
+            // of the box.
+            var tooltipBoxTexture = new TextureRegion(uiAssets.getSpritesheet(), 320, 32, 64, 32);
+            var tooltipBoxDrawable = new TextureRegionDrawable(tooltipBoxTexture);
+            tooltipBoxDrawable.setPadding(5.0f, 8.0f, 5.0f, 8.0f);
+
+            var tooltipLabelStyle = new Label.LabelStyle(uiAssets.getSmallFont(), Color.BLACK);
+            var tooltipStyle = new TextTooltip.TextTooltipStyle(tooltipLabelStyle, tooltipBoxDrawable);
+
             var textureRegion = new TextureRegion(uiAssets.getSpritesheet(), 32, 160, 32, 32);
-            for (int i = 0; i < selectedPrefab.getMap().getAvailablePrefabs().size(); i++) {
-                final int index = i;
+            for (var prefab : selectedPrefab.getMap().getAvailablePrefabs()) {
+                final int index = selectedPrefab.getMap().getAvailablePrefabs().indexOf(prefab);
                 var image = new Image(textureRegion);
                 image.addListener(new ClickListener() {
                     @Override
@@ -40,6 +50,12 @@ public class BuildingToolbar extends Table {
                         selectedPrefab.setIndex(index);
                     }
                 });
+
+                // Add tooltip.
+                var tooltip = new TextTooltip(prefab.getName(), tooltipStyle);
+                tooltip.setInstant(true);
+                image.addListener(tooltip);
+
                 backgroundImages.add(image);
             }
 
