@@ -68,14 +68,18 @@ public class CameraController extends InputAdapter {
         if (button == Input.Buttons.RIGHT) {
             isCurrentlyDragging = true;
             lastDragPosition.set(screenX, screenY);
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        isCurrentlyDragging = false;
-        return true;
+        if (isCurrentlyDragging) {
+            isCurrentlyDragging = false;
+            return true;
+        }
+        return false;
     }
 
     @Override
