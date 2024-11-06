@@ -1,7 +1,6 @@
 package io.github.uoyteamsix;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
@@ -10,11 +9,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import io.github.uoyteamsix.map.GameMap;
+import io.github.uoyteamsix.map.GameMapInput;
 import io.github.uoyteamsix.ui.UiStage;
 
 /**
@@ -28,11 +26,8 @@ public class GameScreen extends ScreenAdapter {
     private final ShapeRenderer shapeRenderer;
     private final UiStage uiStage;
     private GameMap map;
+    private GameMapInput mapInput;
     private MapRenderer mapRenderer;
-    private TiledMapTileLayer mapLayer;  // Reference to the map's tile layer
-
-    // Variables for tile selection
-    private int selectedTileX = -1, selectedTileY = -1;
 
     public GameScreen(AssetManager assetManager, CursorManager cursorManager) {
         this.assetManager = assetManager;
@@ -67,9 +62,6 @@ public class GameScreen extends ScreenAdapter {
             initializeMap();
         }
 
-        // Handle tile selection based on mouse input.
-        handleTileSelection();
-
         // Set cursor based on camera behavior.
         updateCursorState();
 
@@ -97,37 +89,15 @@ public class GameScreen extends ScreenAdapter {
             map = new GameMap(tiledMap);
             mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, batch);
 
-            // Get the main layer of the map for tile selection
-            mapLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
-
             // Center the camera on the map.
             cameraController.getCamera().position.set(map.getWidthPx() / 2.0f, map.getHeightPx() / 2.0f, 0.0f);
             cameraController.setMapDimensions(map.getWidthPx(), map.getHeightPx());
+
+            // Add input handler for map.
+            mapInput = new GameMapInput(map, cameraController);
+            ((InputMultiplexer) Gdx.input.getInputProcessor()).addProcessor(mapInput);
         } catch (Exception e) {
             Gdx.app.error("GameScreen", "Failed to initialize the map renderer: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Handles tile selection based on mouse input.
-     */
-    private void handleTileSelection() {
-        Vector3 worldCoordinates = cameraController.getCamera().unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
-        int tileX = (int) (worldCoordinates.x / mapLayer.getTileWidth());
-        int tileY = (int) (worldCoordinates.y / mapLayer.getTileHeight());
-
-        // Check if the clicked tile is within bounds
-        if (tileX >= 0 && tileX < mapLayer.getWidth() && tileY >= 0 && tileY < mapLayer.getHeight()) {
-            selectedTileX = tileX;
-            selectedTileY = tileY;
-        } else {
-            // If out of bounds, deselect
-            selectedTileX = -1;
-            selectedTileY = -1;
-        }
-
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && selectedTileX >= 0) {
-            map.constructBuilding(selectedTileX, selectedTileY);
         }
     }
 
@@ -154,14 +124,16 @@ public class GameScreen extends ScreenAdapter {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
+        var selectedTileX = mapInput.getSelectedTileX();
+        var selectedTileY = mapInput.getSelectedTileY();
         if (selectedTileX >= 0 && selectedTileY >= 0) {
             shapeRenderer.setProjectionMatrix(cameraController.getCamera().combined);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
             shapeRenderer.setColor(1.0f, 1.0f, 1.0f, 0.5f);
 
             // Draw a rectangle around the selected tile
-            float tileWidth = mapLayer.getTileWidth();
-            float tileHeight = mapLayer.getTileHeight();
+            float tileWidth = map.getTileWidthPx();
+            float tileHeight = map.getTileHeightPx();
             shapeRenderer.rect(selectedTileX * tileWidth, selectedTileY * tileHeight, tileWidth, tileHeight);
 
             shapeRenderer.end();
