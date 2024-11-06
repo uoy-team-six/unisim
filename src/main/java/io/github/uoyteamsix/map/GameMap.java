@@ -36,7 +36,7 @@ public class GameMap {
             for (int cellY = 0; cellY < prefabLayer.getHeight(); cellY++) {
                 var cell = prefabLayer.getCell(cellX, cellY);
                 if (cell != null) {
-                    buildingLayer.setCell(x + cellX, y - (prefabLayer.getHeight() - cellY) + 3, cell);
+                    buildingLayer.setCell(x + cellX, y + cellY, cell);
                 }
             }
         }

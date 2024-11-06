@@ -25,7 +25,7 @@ public class GameMapInput extends InputAdapter {
         selectedTileX = (int) (worldCoordinates.x / map.getTileWidthPx());
         selectedTileY = (int) (worldCoordinates.y / map.getTileHeightPx());
 
-        // Set value to -1 if outside of the map bounds.
+        // Set value to -1 if outside the map bounds.
         if (selectedTileX < 0 || selectedTileX >= map.getWidth()) {
             selectedTileX = -1;
         }
