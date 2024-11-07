@@ -38,7 +38,7 @@ public class BuildingPrefab {
      *
      * @param renderer an instance of an OfflineBuildingRenderer
      */
-    public void generateTextures(OfflineBuildingRenderer renderer) {
+    public void generateTextures(OffscreenBuildingRenderer renderer) {
         normalTexture = renderer.render(this, new Color(1.0f, 1.0f, 1.0f, 1.0f));
         transparentTexture = renderer.render(this, new Color(1.0f, 1.0f, 1.0f, 0.8f));
         redTexture = renderer.render(this, new Color(1.0f, 0.1f, 0.1f, 0.8f));

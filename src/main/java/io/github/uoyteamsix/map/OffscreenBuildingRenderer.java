@@ -13,12 +13,12 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
  * A class which renders each building type to textures. This is used for the transparent green and red building
  * textures when buildings are being placed, as well as for the preview on the building toolbar.
  */
-public class OfflineBuildingRenderer {
+public class OffscreenBuildingRenderer {
     private final GameMap map;
     private final SpriteBatch spriteBatch;
     private final MapRenderer mapRenderer;
 
-    public OfflineBuildingRenderer(GameMap map) {
+    public OffscreenBuildingRenderer(GameMap map) {
         this.map = map;
 
         // Create our own sprite batch so we can control the tint colour on it.

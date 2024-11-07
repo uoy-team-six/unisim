@@ -63,9 +63,9 @@ public class GameMap {
         }
 
         // Generate textures for each building prefab.
-        var offlineBuildingRenderer = new OfflineBuildingRenderer(this);
+        var offscreenBuildingRenderer = new OffscreenBuildingRenderer(this);
         for (var prefab : availablePrefabs) {
-            prefab.generateTextures(offlineBuildingRenderer);
+            prefab.generateTextures(offscreenBuildingRenderer);
         }
 
         placedBuildings = new ArrayList<>();
