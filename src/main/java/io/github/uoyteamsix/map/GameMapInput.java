@@ -24,8 +24,19 @@ public class GameMapInput extends InputAdapter {
 
     @Override
     public boolean keyDown(int keycode) {
+        // Allow deselecting the current prefab either by pressing escape, pressing a number out of range, or pressing
+        // the same key again.
+        if (keycode == Input.Keys.ESCAPE) {
+            selectedPrefab.setIndex(-1);
+            return true;
+        }
         if (keycode >= Input.Keys.NUM_1 && keycode <= Input.Keys.NUM_9) {
-            selectedPrefab.setIndex(keycode - Input.Keys.NUM_1);
+            int index = keycode - Input.Keys.NUM_1;
+            if (index == selectedPrefab.getIndex()) {
+                selectedPrefab.setIndex(-1);
+            } else {
+                selectedPrefab.setIndex(index);
+            }
             return true;
         }
         return false;
