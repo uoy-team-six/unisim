@@ -5,7 +5,6 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.math.Vector3;
 import io.github.uoyteamsix.CameraController;
 import io.github.uoyteamsix.GameLogic;
-import io.github.uoyteamsix.SelectedPrefab;
 
 /**
  * A class which handles user input events on the game map.
@@ -14,15 +13,13 @@ public class GameMapInput extends InputAdapter {
     private final GameMap map;
     private final GameLogic gameLogic;
     private final CameraController cameraController;
-    private final SelectedPrefab selectedPrefab;
     private int selectedTileX = -1;
     private int selectedTileY = -1;
 
-    public GameMapInput(GameMap map, GameLogic gameLogic, CameraController cameraController, SelectedPrefab selectedPrefab) {
+    public GameMapInput(GameMap map, GameLogic gameLogic, CameraController cameraController) {
         this.map = map;
         this.gameLogic = gameLogic;
         this.cameraController = cameraController;
-        this.selectedPrefab = selectedPrefab;
     }
 
     @Override
@@ -30,15 +27,15 @@ public class GameMapInput extends InputAdapter {
         // Allow deselecting the current prefab either by pressing escape, pressing a number out of range, or pressing
         // the same key again.
         if (keycode == Input.Keys.ESCAPE) {
-            selectedPrefab.setIndex(-1);
+            gameLogic.setSelectedPrefabIndex(-1);
             return true;
         }
         if (keycode >= Input.Keys.NUM_1 && keycode <= Input.Keys.NUM_9) {
             int index = keycode - Input.Keys.NUM_1;
-            if (index == selectedPrefab.getIndex()) {
-                selectedPrefab.setIndex(-1);
+            if (index == gameLogic.getSelectedPrefabIndex()) {
+                gameLogic.setSelectedPrefabIndex(-1);
             } else if (gameLogic.canPlaceBuilding()) {
-                selectedPrefab.setIndex(index);
+                gameLogic.setSelectedPrefabIndex(index);
             }
             return true;
         }
@@ -63,7 +60,7 @@ public class GameMapInput extends InputAdapter {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        var prefab = selectedPrefab.getPrefab();
+        var prefab = gameLogic.getSelectedPrefab();
         if (button == Input.Buttons.LEFT && selectedTileX >= 0 && selectedTileY >= 0 && prefab != null) {
             int placementX = getPlacementTileX();
             int placementY = getPlacementTileY();
@@ -71,7 +68,7 @@ public class GameMapInput extends InputAdapter {
                 map.placeBuilding(prefab, placementX, placementY);
 
                 // Deselect prefab after successfully placing a building.
-                selectedPrefab.setIndex(-1);
+                gameLogic.setSelectedPrefabIndex(-1);
             }
         }
         return true;
@@ -86,7 +83,7 @@ public class GameMapInput extends InputAdapter {
     }
 
     public int getPlacementTileX() {
-        var prefab = selectedPrefab.getPrefab();
+        var prefab = gameLogic.getSelectedPrefab();
         if (prefab == null) {
             return selectedTileX;
         }
@@ -94,7 +91,7 @@ public class GameMapInput extends InputAdapter {
     }
 
     public int getPlacementTileY() {
-        var prefab = selectedPrefab.getPrefab();
+        var prefab = gameLogic.getSelectedPrefab();
         if (prefab == null) {
             return selectedTileY;
         }

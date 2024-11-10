@@ -22,7 +22,6 @@ public class GameScreen extends ScreenAdapter {
     private final SpriteBatch batch;
     private final CameraController cameraController;
     private final GameLogic gameLogic;
-    private final SelectedPrefab selectedPrefab;
     private final UiStage uiStage;
     private GameMap map;
     private GameMapInput mapInput;
@@ -34,8 +33,7 @@ public class GameScreen extends ScreenAdapter {
         batch = new SpriteBatch();
         cameraController = new CameraController();
         gameLogic = new GameLogic();
-        selectedPrefab = new SelectedPrefab();
-        uiStage = new UiStage(assetManager, gameLogic, selectedPrefab);
+        uiStage = new UiStage(assetManager, gameLogic);
 
         // Create an input multiplexer to chain together our input adapters.
         // Add the UI stage first, then the camera controller.
@@ -89,7 +87,6 @@ public class GameScreen extends ScreenAdapter {
             var tiledMap = assetManager.get("maps/map.tmx", TiledMap.class);
             map = new GameMap(tiledMap);
             mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, batch);
-            selectedPrefab.setMap(map);
 
             // Center the camera on the map.
             cameraController.getCamera().position.set(map.getWidthPx() / 2.0f, map.getHeightPx() / 2.0f, 0.0f);
@@ -98,7 +95,7 @@ public class GameScreen extends ScreenAdapter {
             gameLogic.setMap(map);
 
             // Add input handler for map.
-            mapInput = new GameMapInput(map, gameLogic, cameraController, selectedPrefab);
+            mapInput = new GameMapInput(map, gameLogic, cameraController);
             ((InputMultiplexer) Gdx.input.getInputProcessor()).addProcessor(mapInput);
         } catch (Exception e) {
             Gdx.app.error("GameScreen", "Failed to initialize the map renderer: " + e.getMessage());
@@ -124,7 +121,7 @@ public class GameScreen extends ScreenAdapter {
      * Renders a building on the mouse cursor if a building is currently being placed.
      */
     private void renderBuildingPlacement() {
-        var prefab = selectedPrefab.getPrefab();
+        var prefab = gameLogic.getSelectedPrefab();
         if (prefab == null) {
             // Building not being placed.
             return;

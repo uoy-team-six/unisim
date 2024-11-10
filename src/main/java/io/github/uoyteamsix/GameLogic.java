@@ -1,5 +1,6 @@
 package io.github.uoyteamsix;
 
+import io.github.uoyteamsix.map.BuildingPrefab;
 import io.github.uoyteamsix.map.GameMap;
 
 /**
@@ -12,6 +13,7 @@ public class GameLogic {
 
     private GameMap gameMap;
     private int maximumAllowedBuildings;
+    private int selectedPrefabIndex = -1;
 
     // Timers.
     private float remainingTime;
@@ -41,11 +43,34 @@ public class GameLogic {
         }
     }
 
+    public void setSelectedPrefabIndex(int prefabIndex) {
+        if (gameMap != null && prefabIndex < gameMap.getAvailablePrefabs().size()) {
+            selectedPrefabIndex = prefabIndex;
+        } else {
+            selectedPrefabIndex = -1;
+        }
+    }
+
     /**
      * @return true if the player is allowed to place another building
      */
     public boolean canPlaceBuilding() {
         return gameMap.getTotalBuildingCount() < maximumAllowedBuildings;
+    }
+
+    public BuildingPrefab getSelectedPrefab() {
+        if (gameMap == null || selectedPrefabIndex < 0) {
+            return null;
+        }
+        return gameMap.getAvailablePrefabs().get(selectedPrefabIndex);
+    }
+
+    public GameMap getGameMap() {
+        return gameMap;
+    }
+
+    public int getSelectedPrefabIndex() {
+        return selectedPrefabIndex;
     }
 
     public float getRemainingTime() {

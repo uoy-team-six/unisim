@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import io.github.uoyteamsix.GameLogic;
-import io.github.uoyteamsix.SelectedPrefab;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,16 +18,14 @@ import java.util.List;
 public class BuildingToolbar extends Stack {
     private final UiAssets uiAssets;
     private final GameLogic gameLogic;
-    private final SelectedPrefab selectedPrefab;
     private final Table toolbarTable;
     private final List<Image> backgroundImages;
     private Label nextBuildingTimeLabel;
     private TextureRegion selectionBoxTexture;
 
-    public BuildingToolbar(UiAssets uiAssets, GameLogic gameLogic, SelectedPrefab selectedPrefab) {
+    public BuildingToolbar(UiAssets uiAssets, GameLogic gameLogic) {
         this.uiAssets = uiAssets;
         this.gameLogic = gameLogic;
-        this.selectedPrefab = selectedPrefab;
         toolbarTable = new Table();
         backgroundImages = new ArrayList<>();
     }
@@ -50,13 +47,13 @@ public class BuildingToolbar extends Stack {
             var tooltipStyle = new TextTooltip.TextTooltipStyle(tooltipLabelStyle, tooltipBoxDrawable);
 
             var textureRegion = new TextureRegion(uiAssets.getSpritesheet(), 32, 160, 32, 32);
-            for (var prefab : selectedPrefab.getMap().getAvailablePrefabs()) {
-                final int index = selectedPrefab.getMap().getAvailablePrefabs().indexOf(prefab);
+            for (var prefab : gameLogic.getGameMap().getAvailablePrefabs()) {
+                final int index = gameLogic.getGameMap().getAvailablePrefabs().indexOf(prefab);
                 var image = new Image(textureRegion);
                 image.addListener(new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
-                        selectedPrefab.setIndex(index);
+                        gameLogic.setSelectedPrefabIndex(index);
                     }
                 });
 
@@ -118,17 +115,18 @@ public class BuildingToolbar extends Stack {
             // Offset slightly.
             coords.add(8.0f, -10.0f);
 
-            var prefab = selectedPrefab.getMap().getAvailablePrefabs().get(i);
+            var prefab = gameLogic.getGameMap().getAvailablePrefabs().get(i);
             batch.draw(prefab.getNormalTexture(), coords.x, Gdx.graphics.getHeight() - coords.y, 48.0f, 48.0f);
         }
 
-        if (selectedPrefab.getIndex() < 0 || selectionBoxTexture == null) {
+        var prefabIndex = gameLogic.getSelectedPrefabIndex();
+        if (prefabIndex < 0 || selectionBoxTexture == null) {
             // No selected prefab.
             return;
         }
 
         // Draw selection image on top of clicked cell.
-        var image = backgroundImages.get(selectedPrefab.getIndex());
+        var image = backgroundImages.get(prefabIndex);
         var coords = image.localToScreenCoordinates(new Vector2(0, 0));
         batch.draw(selectionBoxTexture, coords.x, Gdx.graphics.getHeight() - coords.y, 64.0f, 64.0f);
     }

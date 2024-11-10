@@ -6,20 +6,20 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
-import io.github.uoyteamsix.SelectedPrefab;
+import io.github.uoyteamsix.GameLogic;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BuildingStatsBox extends Table {
     private final UiAssets uiAssets;
-    private final SelectedPrefab selectedPrefab;
+    private final GameLogic gameLogic;
     private final List<Label> labels;
     private Image boxImage;
 
-    public BuildingStatsBox(UiAssets uiAssets, SelectedPrefab selectedPrefab) {
+    public BuildingStatsBox(UiAssets uiAssets, GameLogic gameLogic) {
         this.uiAssets = uiAssets;
-        this.selectedPrefab = selectedPrefab;
+        this.gameLogic = gameLogic;
         labels = new ArrayList<>();
     }
 
@@ -30,7 +30,7 @@ public class BuildingStatsBox extends Table {
         // Create labels once fonts have been loaded.
         if (labels.isEmpty() && uiAssets.hasFontsLoaded()) {
             var labelStyle = new Label.LabelStyle(uiAssets.getSmallFont(), Color.BLACK);
-            for (int i = 0; i < selectedPrefab.getMap().getAvailablePrefabs().size(); i++) {
+            for (int i = 0; i < gameLogic.getGameMap().getAvailablePrefabs().size(); i++) {
                 labels.add(new Label("", labelStyle));
             }
         }
@@ -56,7 +56,7 @@ public class BuildingStatsBox extends Table {
 
         // Update label text.
         if (!labels.isEmpty()) {
-            var map = selectedPrefab.getMap();
+            var map = gameLogic.getGameMap();
             for (int i = 0; i < map.getAvailablePrefabs().size(); i++) {
                 var prefab = map.getAvailablePrefabs().get(i);
                 var count = map.getBuildingCount(prefab);
