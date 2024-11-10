@@ -66,6 +66,9 @@ public class GameLogic {
         newBuildingSatisfaction -= newBuildingFactor;
         newBuildingSatisfaction = Math.max(newBuildingSatisfaction, 0.0f);
 
+        // Apply some satisfaction based on student count.
+        satisfaction += Math.min(studentCount / 25000.0f, 0.01f) * deltaTime;
+
         // Decrease satisfaction if there isn't enough canteen or study buildings for all the students. Each canteen
         // can support 100 students and each study building can support 75 students. Use exponential formulas so a
         // deficit can not just be offset by placing lots of recreation buildings.
@@ -79,7 +82,7 @@ public class GameLogic {
         }
 
         // Decay satisfaction based on a rate determined by the amount of recreation buildings.
-        float decayRate = 0.05f;
+        float decayRate = 0.035f;
         decayRate -= gameMap.getBuildingCount(recreationPrefab) / 500.0f;
         satisfaction -= Math.max(decayRate, 0.015f) * deltaTime;
 
