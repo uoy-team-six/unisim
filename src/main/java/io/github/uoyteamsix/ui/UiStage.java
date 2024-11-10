@@ -3,6 +3,7 @@ package io.github.uoyteamsix.ui;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.uoyteamsix.GameLogic;
 
@@ -27,6 +28,8 @@ public class UiStage extends Stage {
         topLeftTable.add(new GameTimer(assets, gameLogic));
         topLeftTable.row();
         topLeftTable.add(new BuildingStatsBox(assets, gameLogic));
+        topLeftTable.row();
+        topLeftTable.add(new SatisfactionMeter(assets, gameLogic)).align(Align.left).padTop(16.0f);
 
         // Create the building toolbar anchored to the bottom center.
         var buildingToolbar = new BuildingToolbar(assets, gameLogic);
