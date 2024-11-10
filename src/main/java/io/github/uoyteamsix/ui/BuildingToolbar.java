@@ -74,8 +74,7 @@ public class BuildingToolbar extends Stack {
             nextBuildingTimeLabel.setAlignment(Align.center);
             selectionBoxTexture = new TextureRegion(uiAssets.getSpritesheet(), 384, 32, 32, 32);
 
-            // Add label and toolbar table to the stack, and add the background images to the table.
-            add(nextBuildingTimeLabel);
+            // Add toolbar table to the stack, and add the background images to the table.
             add(toolbarTable);
             for (int i = 0; i < backgroundImages.size(); i++) {
                 var cell = toolbarTable.add(backgroundImages.get(i)).size(64.0f, 64.0f);
@@ -93,7 +92,12 @@ public class BuildingToolbar extends Stack {
             // Show toolbar if player can place a building, otherwise show the next building timer.
             boolean canPlaceBuilding = gameLogic.canPlaceBuilding();
             toolbarTable.setVisible(canPlaceBuilding);
-            nextBuildingTimeLabel.setVisible(!canPlaceBuilding);
+
+            // Remove and add label so it doesn't affect the layout of the toolbar.
+            removeActor(nextBuildingTimeLabel);
+            if (!canPlaceBuilding) {
+                add(nextBuildingTimeLabel);
+            }
         }
     }
 
