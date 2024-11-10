@@ -25,9 +25,16 @@ public class GameLogic {
     private float newBuildingSatisfaction;
     private int previousBuildingCount;
 
+    // Events.
+    private GameEvent currentEvent;
+    private float nextEventProbability;
+    private float checkEventTimer;
+    private float eventDurationTimer;
+
     public GameLogic() {
         remainingTime = TOTAL_GAME_TIME;
         nextBuildingTime = 0.0f;
+        currentEvent = GameEvent.NONE;
     }
 
     public void setMap(GameMap gameMap) {
@@ -78,13 +85,21 @@ public class GameLogic {
             satisfaction -= ((float) Math.pow(2.0f, canteenDeficit / 12.0f) / 175.0f) * deltaTime * 0.5f;
         }
         if (studyDeficit > 0) {
-            satisfaction -= ((float) Math.pow(2.0f, studyDeficit / 15.0f) / 75.0f) * deltaTime * 0.5f;
+            float factor = currentEvent == GameEvent.STRIKE ? 1.0f : 0.5f;
+            satisfaction -= ((float) Math.pow(2.0f, studyDeficit / 15.0f) / 75.0f) * deltaTime * factor;
         }
 
         // Decay satisfaction based on a rate determined by the amount of recreation buildings.
         float decayRate = 0.035f;
         decayRate -= gameMap.getBuildingCount(recreationPrefab) / 500.0f;
         satisfaction -= Math.max(decayRate, 0.015f) * deltaTime;
+
+        // Handle rain and roses events.
+        if (currentEvent == GameEvent.RAIN) {
+            satisfaction -= 0.02f * deltaTime;
+        } else if (currentEvent == GameEvent.ROSES) {
+            satisfaction += 0.02f * deltaTime;
+        }
 
         // Clamp satisfaction between 0 and 1.
         satisfaction = MathUtils.clamp(satisfaction, 0.0f, 1.0f);
@@ -105,7 +120,32 @@ public class GameLogic {
             nextBuildingTime = BUILDING_TIME;
         }
 
+        // Update satisfaction.
         updateSatisfaction(deltaTime);
+
+        // Tick event duration timer.
+        if (currentEvent != GameEvent.NONE) {
+            eventDurationTimer -= deltaTime;
+        }
+        if (eventDurationTimer < 0.0f) {
+            currentEvent = GameEvent.NONE;
+        }
+        if (currentEvent != GameEvent.NONE) {
+            return;
+        }
+
+        // Generate a random number every 2 seconds to see if we should start an event. Bias the random number slightly
+        // to prevent events from happening to close to each other.
+        nextEventProbability += deltaTime * 0.01f;
+        checkEventTimer += deltaTime;
+        if (checkEventTimer > 2.0f) {
+            checkEventTimer = 0.0f;
+            if (Math.min(MathUtils.random() + 0.1f, 1.0f) < nextEventProbability) {
+                nextEventProbability = 0;
+                currentEvent = GameEvent.values()[MathUtils.random(GameEvent.values().length - 1)];
+                eventDurationTimer = MathUtils.random(15.0f, 45.0f);
+            }
+        }
     }
 
     public void setSelectedPrefabIndex(int prefabIndex) {
@@ -148,5 +188,13 @@ public class GameLogic {
 
     public float getSatisfaction() {
         return satisfaction;
+    }
+
+    public GameEvent getCurrentEvent() {
+        return currentEvent;
+    }
+
+    public float getEventDurationTimer() {
+        return eventDurationTimer;
     }
 }

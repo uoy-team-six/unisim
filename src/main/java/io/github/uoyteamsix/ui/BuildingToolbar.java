@@ -83,7 +83,7 @@ public class BuildingToolbar extends Stack {
 
         if (nextBuildingTimeLabel != null) {
             // Update label text.
-            var text = String.format("Next building in %02d", (int) gameLogic.getNextBuildingTime());
+            var text = String.format("Next building in %d", (int) gameLogic.getNextBuildingTime());
             nextBuildingTimeLabel.setText(text);
 
             // Show toolbar if player can place a building, otherwise show the next building timer.
