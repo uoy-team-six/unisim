@@ -21,6 +21,7 @@ public class GameScreen extends ScreenAdapter {
     private final CursorManager cursorManager;
     private final SpriteBatch batch;
     private final CameraController cameraController;
+    private final GameLogic gameLogic;
     private final SelectedPrefab selectedPrefab;
     private final UiStage uiStage;
     private GameMap map;
@@ -32,8 +33,9 @@ public class GameScreen extends ScreenAdapter {
         this.cursorManager = cursorManager;
         batch = new SpriteBatch();
         cameraController = new CameraController();
+        gameLogic = new GameLogic();
         selectedPrefab = new SelectedPrefab();
-        uiStage = new UiStage(assetManager, selectedPrefab);
+        uiStage = new UiStage(assetManager, gameLogic, selectedPrefab);
 
         // Create an input multiplexer to chain together our input adapters.
         // Add the UI stage first, then the camera controller.
@@ -63,8 +65,9 @@ public class GameScreen extends ScreenAdapter {
         // Set cursor based on camera behavior.
         updateCursorState();
 
-        // Update camera and UI.
+        // Update camera, game logic, and UI.
         cameraController.update(deltaTime);
+        gameLogic.update(deltaTime);
         uiStage.act(deltaTime);
 
         // Render the map.
@@ -92,8 +95,10 @@ public class GameScreen extends ScreenAdapter {
             cameraController.getCamera().position.set(map.getWidthPx() / 2.0f, map.getHeightPx() / 2.0f, 0.0f);
             cameraController.setMapDimensions(map.getWidthPx(), map.getHeightPx());
 
+            gameLogic.setMap(map);
+
             // Add input handler for map.
-            mapInput = new GameMapInput(map, cameraController, selectedPrefab);
+            mapInput = new GameMapInput(map, gameLogic, cameraController, selectedPrefab);
             ((InputMultiplexer) Gdx.input.getInputProcessor()).addProcessor(mapInput);
         } catch (Exception e) {
             Gdx.app.error("GameScreen", "Failed to initialize the map renderer: " + e.getMessage());

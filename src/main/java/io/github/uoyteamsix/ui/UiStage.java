@@ -4,6 +4,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import io.github.uoyteamsix.GameLogic;
 import io.github.uoyteamsix.SelectedPrefab;
 
 /**
@@ -12,7 +13,7 @@ import io.github.uoyteamsix.SelectedPrefab;
 public class UiStage extends Stage {
     private final UiAssets assets;
 
-    public UiStage(AssetManager assetManager, SelectedPrefab selectedPrefab) {
+    public UiStage(AssetManager assetManager, GameLogic gameLogic, SelectedPrefab selectedPrefab) {
         // The UI spans the whole screen.
         super(new ScreenViewport());
         assets = new UiAssets(assetManager);
@@ -24,15 +25,15 @@ public class UiStage extends Stage {
 
         // Create a table anchored to the top left for the timer and stats.
         var topLeftTable = new Table();
-        topLeftTable.add(new GameTimer(assets));
+        topLeftTable.add(new GameTimer(assets, gameLogic));
         topLeftTable.row();
         topLeftTable.add(new BuildingStatsBox(assets, selectedPrefab));
 
         // Create the building toolbar anchored to the bottom center.
-        var toolbar = new BuildingToolbar(assets, selectedPrefab);
+        var buildingToolbar = new BuildingToolbar(assets, gameLogic, selectedPrefab);
         mainTable.add(topLeftTable).expand().top().left().padLeft(25.0f);
         mainTable.row();
-        mainTable.add(toolbar).bottom().center().padBottom(5.0f);
+        mainTable.add(buildingToolbar).bottom().center().padBottom(5.0f);
     }
 
     @Override

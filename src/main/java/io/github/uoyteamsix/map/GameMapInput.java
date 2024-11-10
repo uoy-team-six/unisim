@@ -4,6 +4,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.math.Vector3;
 import io.github.uoyteamsix.CameraController;
+import io.github.uoyteamsix.GameLogic;
 import io.github.uoyteamsix.SelectedPrefab;
 
 /**
@@ -11,13 +12,15 @@ import io.github.uoyteamsix.SelectedPrefab;
  */
 public class GameMapInput extends InputAdapter {
     private final GameMap map;
+    private final GameLogic gameLogic;
     private final CameraController cameraController;
     private final SelectedPrefab selectedPrefab;
     private int selectedTileX = -1;
     private int selectedTileY = -1;
 
-    public GameMapInput(GameMap map, CameraController cameraController, SelectedPrefab selectedPrefab) {
+    public GameMapInput(GameMap map, GameLogic gameLogic, CameraController cameraController, SelectedPrefab selectedPrefab) {
         this.map = map;
+        this.gameLogic = gameLogic;
         this.cameraController = cameraController;
         this.selectedPrefab = selectedPrefab;
     }
@@ -34,7 +37,7 @@ public class GameMapInput extends InputAdapter {
             int index = keycode - Input.Keys.NUM_1;
             if (index == selectedPrefab.getIndex()) {
                 selectedPrefab.setIndex(-1);
-            } else {
+            } else if (gameLogic.canPlaceBuilding()) {
                 selectedPrefab.setIndex(index);
             }
             return true;
@@ -64,10 +67,10 @@ public class GameMapInput extends InputAdapter {
         if (button == Input.Buttons.LEFT && selectedTileX >= 0 && selectedTileY >= 0 && prefab != null) {
             int placementX = getPlacementTileX();
             int placementY = getPlacementTileY();
-            if (map.canPlaceBuilding(prefab, placementX, placementY)) {
+            if (gameLogic.canPlaceBuilding() && map.canPlaceBuilding(prefab, placementX, placementY)) {
                 map.placeBuilding(prefab, placementX, placementY);
 
-                // Deselect prefab after successfully placing building.
+                // Deselect prefab after successfully placing a building.
                 selectedPrefab.setIndex(-1);
             }
         }

@@ -121,6 +121,10 @@ public class GameMap {
         return count;
     }
 
+    public int getTotalBuildingCount() {
+        return placedBuildings.size();
+    }
+
     public TiledMap getTiledMap() {
         return tiledMap;
     }

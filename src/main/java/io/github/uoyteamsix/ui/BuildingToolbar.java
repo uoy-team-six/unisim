@@ -9,20 +9,27 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
+import io.github.uoyteamsix.GameLogic;
 import io.github.uoyteamsix.SelectedPrefab;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BuildingToolbar extends Table {
+public class BuildingToolbar extends Stack {
     private final UiAssets uiAssets;
+    private final GameLogic gameLogic;
     private final SelectedPrefab selectedPrefab;
+    private final Table toolbarTable;
     private final List<Image> backgroundImages;
+    private Label nextBuildingTimeLabel;
     private TextureRegion selectionBoxTexture;
 
-    public BuildingToolbar(UiAssets uiAssets, SelectedPrefab selectedPrefab) {
+    public BuildingToolbar(UiAssets uiAssets, GameLogic gameLogic, SelectedPrefab selectedPrefab) {
         this.uiAssets = uiAssets;
+        this.gameLogic = gameLogic;
         this.selectedPrefab = selectedPrefab;
+        toolbarTable = new Table();
         backgroundImages = new ArrayList<>();
     }
 
@@ -30,6 +37,7 @@ public class BuildingToolbar extends Table {
     public void act(float delta) {
         super.act(delta);
 
+        // Create children when assets have loaded.
         if (backgroundImages.isEmpty() && uiAssets.hasSpritesheetLoaded() && uiAssets.hasFontsLoaded()) {
             // Create a drawable for the tooltip box and give it some padding as otherwise the text intersects the edge
             // of the box.
@@ -37,6 +45,7 @@ public class BuildingToolbar extends Table {
             var tooltipBoxDrawable = new TextureRegionDrawable(tooltipBoxTexture);
             tooltipBoxDrawable.setPadding(5.0f, 8.0f, 5.0f, 8.0f);
 
+            // Create a tooltip style.
             var tooltipLabelStyle = new Label.LabelStyle(uiAssets.getSmallFont(), Color.BLACK);
             var tooltipStyle = new TextTooltip.TextTooltipStyle(tooltipLabelStyle, tooltipBoxDrawable);
 
@@ -51,7 +60,7 @@ public class BuildingToolbar extends Table {
                     }
                 });
 
-                // Add tooltip.
+                // Add tooltip to display on image hover.
                 var tooltip = new TextTooltip(prefab.getName(), tooltipStyle);
                 tooltip.setInstant(true);
                 image.addListener(tooltip);
@@ -59,22 +68,43 @@ public class BuildingToolbar extends Table {
                 backgroundImages.add(image);
             }
 
+            // Create next building time label.
+            var timeLabelStyle = new Label.LabelStyle(uiAssets.getLargeFont(), Color.BLACK);
+            nextBuildingTimeLabel = new Label("", timeLabelStyle);
+            nextBuildingTimeLabel.setAlignment(Align.center);
             selectionBoxTexture = new TextureRegion(uiAssets.getSpritesheet(), 384, 32, 32, 32);
-        }
 
-        if (getChildren().isEmpty() && !backgroundImages.isEmpty()) {
+            // Add label and toolbar table to the stack, and add the background images to the table.
+            add(nextBuildingTimeLabel);
+            add(toolbarTable);
             for (int i = 0; i < backgroundImages.size(); i++) {
-                var cell = add(backgroundImages.get(i)).size(64.0f, 64.0f);
+                var cell = toolbarTable.add(backgroundImages.get(i)).size(64.0f, 64.0f);
                 if (i != 0) {
                     cell.padLeft(20.0f);
                 }
             }
+        }
+
+        if (nextBuildingTimeLabel != null) {
+            // Update label text.
+            var text = String.format("Next building in %02d", (int) gameLogic.getNextBuildingTime());
+            nextBuildingTimeLabel.setText(text);
+
+            // Show toolbar if player can place a building, otherwise show the next building timer.
+            boolean canPlaceBuilding = gameLogic.canPlaceBuilding();
+            toolbarTable.setVisible(canPlaceBuilding);
+            nextBuildingTimeLabel.setVisible(!canPlaceBuilding);
         }
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
+
+        // Don't draw building icons or selection box if the toolbar is not supposed to be visible.
+        if (!toolbarTable.isVisible()) {
+            return;
+        }
 
         // Draw building icons in each box.
         for (int i = 0; i < backgroundImages.size(); i++) {
