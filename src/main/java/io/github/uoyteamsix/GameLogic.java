@@ -19,6 +19,7 @@ public class GameLogic {
     // Timers.
     private float remainingTime;
     private float nextBuildingTime;
+    private boolean gameOver;
 
     // Satisfaction.
     private float satisfaction;
@@ -111,8 +112,15 @@ public class GameLogic {
      * @param deltaTime the delta time between the last call of update
      */
     public void update(float deltaTime) {
+        if (gameOver) {
+            return;
+        }
+
         // Update timers.
         remainingTime -= deltaTime;
+        if (remainingTime < 0.0f) {
+            gameOver = true;
+        }
         nextBuildingTime -= deltaTime;
         if (nextBuildingTime < 0.0f) {
             // User can place another building.
@@ -160,7 +168,7 @@ public class GameLogic {
      * @return true if the player is allowed to place another building
      */
     public boolean canPlaceBuilding() {
-        return gameMap.getTotalBuildingCount() < maximumAllowedBuildings;
+        return !gameOver && gameMap.getTotalBuildingCount() < maximumAllowedBuildings;
     }
 
     public BuildingPrefab getSelectedPrefab() {
