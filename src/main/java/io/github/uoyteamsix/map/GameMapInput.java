@@ -66,6 +66,9 @@ public class GameMapInput extends InputAdapter {
             int placementY = getPlacementTileY();
             if (map.canPlaceBuilding(prefab, placementX, placementY)) {
                 map.placeBuilding(prefab, placementX, placementY);
+
+                // Deselect prefab after successfully placing building.
+                selectedPrefab.setIndex(-1);
             }
         }
         return true;
