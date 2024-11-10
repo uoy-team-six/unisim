@@ -42,6 +42,12 @@ public class GameLogic {
         this.gameMap = gameMap;
     }
 
+    /**
+     * Finds a building prefab given its name.
+     *
+     * @param name the prefab name
+     * @return a {@link BuildingPrefab}
+     */
     private BuildingPrefab findPrefab(String name) {
         for (var prefab : gameMap.getAvailablePrefabs()) {
             if (prefab.getName().equals(name)) {
@@ -51,6 +57,11 @@ public class GameLogic {
         return null;
     }
 
+    /**
+     * Continuously updates the student satisfaction.
+     *
+     * @param deltaTime the time between the last call of this method
+     */
     private void updateSatisfaction(float deltaTime) {
         // Get all building types.
         var accommodationPrefab = findPrefab("Accommodation");
@@ -156,6 +167,11 @@ public class GameLogic {
         }
     }
 
+    /**
+     * Sets the selected building placement prefab to the given index.
+     *
+     * @param prefabIndex the prefab index
+     */
     public void setSelectedPrefabIndex(int prefabIndex) {
         if (gameMap != null && prefabIndex < gameMap.getAvailablePrefabs().size()) {
             selectedPrefabIndex = prefabIndex;
@@ -171,6 +187,9 @@ public class GameLogic {
         return !gameOver && gameMap.getTotalBuildingCount() < maximumAllowedBuildings;
     }
 
+    /**
+     * @return the selected prefab if there is one, otherwise null
+     */
     public BuildingPrefab getSelectedPrefab() {
         if (gameMap == null || selectedPrefabIndex < 0) {
             return null;

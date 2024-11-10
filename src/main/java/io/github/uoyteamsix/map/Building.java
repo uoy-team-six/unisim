@@ -1,7 +1,7 @@
 package io.github.uoyteamsix.map;
 
 /**
- * A class representing a building placed on the map.
+ * A class which represents a building placed on the map.
  */
 public class Building {
     private final BuildingPrefab prefab;
@@ -14,14 +14,23 @@ public class Building {
         this.y = y;
     }
 
+    /**
+     * @return the prefab this building was constructed from
+     */
     public BuildingPrefab getPrefab() {
         return prefab;
     }
 
+    /**
+     * @return the x position of the building in tiles on the game map
+     */
     public int getX() {
         return x;
     }
 
+    /**
+     * @return the y position of the building in tiles on the game map
+     */
     public int getY() {
         return y;
     }

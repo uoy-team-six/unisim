@@ -8,6 +8,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import io.github.uoyteamsix.GameLogic;
 
+/**
+ * A class which represents the event information box UI element.
+ */
 public class CurrentEventBox extends Table {
     private final UiAssets uiAssets;
     private final GameLogic gameLogic;

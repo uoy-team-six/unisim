@@ -15,6 +15,9 @@ import io.github.uoyteamsix.GameLogic;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A class which represents the building toolbar and next building timer UI elements.
+ */
 public class BuildingToolbar extends Stack {
     private final UiAssets uiAssets;
     private final GameLogic gameLogic;

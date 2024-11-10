@@ -6,6 +6,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
+/**
+ * A class which handles the asynchronous loading of the UI assets.
+ */
 public class UiAssets {
     private final AssetManager assetManager;
     private final AssetDescriptor<FreeTypeFontGenerator> fontDescriptor;
@@ -26,12 +29,22 @@ public class UiAssets {
         assetManager.load(spritesheetDescriptor);
     }
 
+    /**
+     * Creates a bitmap font from a given freetype font and size.
+     *
+     * @param generator the freetype font
+     * @param size      the desired size
+     * @return a {@link BitmapFont}
+     */
     private BitmapFont createFont(FreeTypeFontGenerator generator, int size) {
         var parameters = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameters.size = size;
         return generator.generateFont(parameters);
     }
 
+    /**
+     * Polls and stores and newly loaded assets.
+     */
     public void update() {
         // Check if the font file has been loaded.
         if (largeFont == null && assetManager.isLoaded(fontDescriptor)) {

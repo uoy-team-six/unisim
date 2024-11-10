@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A class to represent the playable game map. Holds the underlying tiled map and keeps track
+ * A class which represents the playable game map. Holds the underlying tiled map and keeps track
  * of placed buildings.
  */
 public class GameMap {
@@ -99,6 +99,15 @@ public class GameMap {
         return true;
     }
 
+    /**
+     * Creates an instance of the given building prefab and places it at the given coordinates. Doesn't check for
+     * validity of placement.
+     *
+     * @param prefab the building prefab
+     * @param x      the x coordinate in world space
+     * @param y      the y coordinate in world space
+     * @see #canPlaceBuilding
+     */
     public void placeBuilding(BuildingPrefab prefab, int x, int y) {
         for (int prefabX = 0; prefabX < prefab.getWidth(); prefabX++) {
             for (int prefabY = 0; prefabY < prefab.getHeight(); prefabY++) {
@@ -111,6 +120,12 @@ public class GameMap {
         placedBuildings.add(new Building(prefab, x, y));
     }
 
+    /**
+     * Counts the number of existing buildings of the given prefab.
+     *
+     * @param prefab the building prefab
+     * @return the building count
+     */
     public int getBuildingCount(BuildingPrefab prefab) {
         int count = 0;
         for (var building : placedBuildings) {
@@ -121,10 +136,16 @@ public class GameMap {
         return count;
     }
 
+    /**
+     * @return the total building count of all prefabs
+     */
     public int getTotalBuildingCount() {
         return placedBuildings.size();
     }
 
+    /**
+     * @return the underlying tiled map of this map
+     */
     public TiledMap getTiledMap() {
         return tiledMap;
     }
@@ -171,6 +192,9 @@ public class GameMap {
         return tileHeightPx;
     }
 
+    /**
+     * @return a list of all available prefabs in this map
+     */
     public List<BuildingPrefab> getAvailablePrefabs() {
         return availablePrefabs;
     }

@@ -72,14 +72,23 @@ public class BuildingPrefab {
         return height;
     }
 
+    /**
+     * @return an exact fit rendered texture of this building
+     */
     public TextureRegion getNormalTexture() {
         return normalTexture;
     }
 
+    /**
+     * @return an exact fit rendered texture of this building which is slightly transparent
+     */
     public TextureRegion getTransparentTexture() {
         return transparentTexture;
     }
 
+    /**
+     * @return an exact fit rendered texture of this building which is slightly transparent and with a red tint
+     */
     public TextureRegion getRedTexture() {
         return redTexture;
     }

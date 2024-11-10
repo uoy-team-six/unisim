@@ -74,14 +74,23 @@ public class GameMapInput extends InputAdapter {
         return true;
     }
 
+    /**
+     * @return the x coordinate of the currently hovered tile
+     */
     public int getSelectedTileX() {
         return selectedTileX;
     }
 
+    /**
+     * @return the y coordinate of the currently hovered tile
+     */
     public int getSelectedTileY() {
         return selectedTileY;
     }
 
+    /**
+     * @return the x coordinate of the centre of the currently selected prefab in world space
+     */
     public int getPlacementTileX() {
         var prefab = gameLogic.getSelectedPrefab();
         if (prefab == null) {
@@ -90,6 +99,9 @@ public class GameMapInput extends InputAdapter {
         return selectedTileX - prefab.getWidth() / 2;
     }
 
+    /**
+     * @return the y coordinate of the centre of the currently selected prefab in world space
+     */
     public int getPlacementTileY() {
         var prefab = gameLogic.getSelectedPrefab();
         if (prefab == null) {

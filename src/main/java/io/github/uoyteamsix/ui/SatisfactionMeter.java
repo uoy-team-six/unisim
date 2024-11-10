@@ -9,6 +9,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import io.github.uoyteamsix.GameLogic;
 
+/**
+ * A class which represents the student satisfaction UI element.
+ */
 public class SatisfactionMeter extends Table {
     private final UiAssets uiAssets;
     private final GameLogic gameLogic;

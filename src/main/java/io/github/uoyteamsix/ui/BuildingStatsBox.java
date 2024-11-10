@@ -11,6 +11,9 @@ import io.github.uoyteamsix.GameLogic;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A class which represents the building counter UI element.
+ */
 public class BuildingStatsBox extends Table {
     private final UiAssets uiAssets;
     private final GameLogic gameLogic;
